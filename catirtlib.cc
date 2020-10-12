@@ -1,5 +1,8 @@
+#include <iostream>
 #include <Eigen/Dense>
 #include <emscripten/emscripten.h>
+
+enum ldertype {type_MLE, type_WLE};
 
 using Eigen::Array;
 using Eigen::ArrayXXd;
@@ -124,6 +127,51 @@ ArrayXXd pder2brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& pa
   return Pd2;
 }
 
+/**
+ * Log-likelihoods of reponses to items at given ability estimates
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates buffer for N people
+ * @param params      Parameters buffer for M items (M x 3 matrix)
+ * @param ltype       type_WLE (weighted likelihood) or type_MLE (maximum likelihood)
+ *
+ * @return log-likelihood for each person - vector (N x 1)
+ */
+ArrayXd lder1brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, ldertype ltype )
+{
+  // u is the response, theta is ability, and params are the parameters.
+  int N = theta.rows();
+  int M = params.rows();
+
+  // Calculating the probability of response:
+  ArrayXXd p = pbrm(theta, params);
+  ArrayXXd q = (1 - p);
+  ArrayXXd pq = (p * q);
+
+  // Calculating the first and second derivatives:
+  ArrayXXd pder1 = pder1brm(theta, params);
+  ArrayXXd pder2 = pder2brm(theta, params);
+
+  // Calculating lder1 for normal/Warm:
+  ArrayXXd lder1 = ( u - p ) * pder1 / pq;
+
+  // Apply Warm correction:
+  if ( ltype == type_WLE ) {
+    ArrayXd I = ( pder1.square() / pq ).rowwise().sum();
+    ArrayXXd H = ( pder1 * pder2 ) / pq;
+
+    // R equivalent: H = (H / ( 2 * I ))
+    for (int j = 0; j < M; j++) {
+      H.block(0, j, N, 1) /= (2 * I);
+    }
+
+    lder1 += H;
+  }
+
+  // Return Vector of logLik's
+  return lder1.rowwise().sum();
+}
+
 /*******************************************
  *
  * Begin JavaScript Bridge
@@ -178,6 +226,21 @@ double* EMSCRIPTEN_KEEPALIVE js_pder2brm(double *theta, int thetaSize, double *p
     for (int n = 0; n < p.cols(); n++) {
       res[i++] = p(m, n);
     }
+  }
+  return res;
+}
+
+double* EMSCRIPTEN_KEEPALIVE js_lder1brm(double *u, int uSize, double *theta, int thetaSize, double *params, int paramsSize, int useWLE)
+{
+  Map<const ArrayXd> thetaMap(theta, thetaSize);
+  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
+  Map<const Array<double, Dynamic, Dynamic, RowMajor> > uMap(u, thetaSize, uSize / thetaSize);
+  ArrayXd l = lder1brm(uMap, thetaMap, paramsMap, (useWLE ? type_WLE : type_MLE));
+  double *res = (double *)malloc(thetaSize * sizeof(double));
+  int i = 0;
+
+  for (int m = 0; m < l.rows(); m++) {
+    res[i++] = l(m, 0);
   }
   return res;
 }

@@ -13,6 +13,10 @@ function format(a, precision=7) {
 describe('catIrt webasm', function () {
   // setup data
   const theta = [-1.3, 1.3];
+  const uresp = [
+      [1, 1, 1, 0, 0],
+      [0, 0, 1, 0, 1]
+  ];
   const itemparams = [
       [1.55,-1.88,0.12],
       [3.02,-0.38,0.12],
@@ -24,6 +28,10 @@ describe('catIrt webasm', function () {
   let flatparams = [];
   for (let i = 0; i < nitems; i++) {
     flatparams = flatparams.concat(itemparams[i]);
+  }
+  let flaturesp = [];
+  for (let i = 0; i < uresp.length; i++) {
+    flaturesp = flaturesp.concat(uresp[i]);
   }
 
   // load wasm (asynchronous)
@@ -102,6 +110,40 @@ describe('catIrt webasm', function () {
         }
       }
       Module._free(flatres);
+
+      assert.deepStrictEqual(format(expected), format(res));
+    });
+  });
+
+  describe('lder1brm:', function () {
+    it('lder1brm(u, theta, params, "MLE")', function () {
+      // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='MLE')`
+      const expected = [1.797812, -5.838820];
+
+      const flatresult = ccallArrays('js_lder1brm', 'array', ['array', 'array', 'array', 'number'], [flaturesp, theta, flatparams, 0], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length});
+      assert.equal(expected.length, flatresult.length);
+
+      let res = [];
+      for (let i = 0; i < theta.length; i++) {
+        res.push(flatresult[i]);
+      }
+      Module._free(flatresult);
+
+      assert.deepStrictEqual(format(expected), format(res));
+    });
+
+    it('lder1brm(u, theta, params, "WLE")', function () {
+      // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='WLE')`
+      const expected = [2.067604, -6.474561];
+
+      const flatresult = ccallArrays('js_lder1brm', 'array', ['array', 'array', 'array', 'number'], [flaturesp, theta, flatparams, 1], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length});
+      assert.equal(expected.length, flatresult.length);
+
+      let res = [];
+      for (let i = 0; i < theta.length; i++) {
+        res.push(flatresult[i]);
+      }
+      Module._free(flatresult);
 
       assert.deepStrictEqual(format(expected), format(res));
     });
