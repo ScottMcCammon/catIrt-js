@@ -82,4 +82,28 @@ describe('catIrt webasm', function () {
       assert.deepStrictEqual(format(expected), format(res));
     });
   });
+
+  describe('pder2brm()', function () {
+    it('two people, five items', function () {
+      // expected values from R equivalent: `catIrt::pder2.brm(theta, params)`
+      const expected = [
+        [-0.18320057,  0.39034545,  0.2177993,  0.09805036,  0.07948274],
+        [-0.01485815, -0.04900072, -0.1687273, -0.32144128, -0.16306764]
+      ];
+
+      const flatres = ccallArrays('js_pder2brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
+      assert.equal(theta.length * itemparams.length, flatres.length);
+
+      let res = [];
+      for (let i = 0; i < theta.length; i++) {
+        res.push([]);
+        for (let j = 0; j < itemparams.length; j++) {
+          res[i].push(flatres[i*itemparams.length + j]);
+        }
+      }
+      Module._free(flatres);
+
+      assert.deepStrictEqual(format(expected), format(res));
+    });
+  });
 });
