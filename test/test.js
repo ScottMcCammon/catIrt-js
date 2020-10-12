@@ -43,73 +43,73 @@ describe('catIrt webasm', function () {
   });
 
   // define test suite
-  describe('pbrm()', function () {
-    it('two people, five items', function () {
+  describe('pbrm:', function () {
+    it('pbrm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::p.brm(theta, params)`
       const expected = [
         [0.7454547, 0.1714823, 0.2016578, 0.1452349, 0.1621502],
         [0.9936800, 0.9945256, 0.9424697, 0.8787063, 0.7380471]
       ];
 
-      const flatres = ccallArrays('js_pbrm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(theta.length * itemparams.length, flatres.length);
+      const flatresult = ccallArrays('js_pbrm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
+      assert.equal(theta.length * itemparams.length, flatresult.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
         res.push([]);
         for (let j = 0; j < itemparams.length; j++) {
-          res[i].push(flatres[i*itemparams.length + j]);
+          res[i].push(flatresult[i*itemparams.length + j]);
         }
       }
-      Module._free(flatres);
+      Module._free(flatresult);
 
       assert.deepStrictEqual(format(expected), format(res));
     });
   });
 
-  describe('pder1brm()', function () {
-    it('two people, five items', function () {
+  describe('pder1brm:', function () {
+    it('pder1brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder1.brm(theta, params)`
       const expected = [
         [0.280420646, 0.14638078, 0.1407530, 0.05049314, 0.05939428],
         [0.009725599, 0.01642982, 0.1021615, 0.21542517, 0.27228506]
       ];
 
-      const flatres = ccallArrays('js_pder1brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(theta.length * itemparams.length, flatres.length);
+      const flatresult = ccallArrays('js_pder1brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
+      assert.equal(theta.length * itemparams.length, flatresult.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
         res.push([]);
         for (let j = 0; j < itemparams.length; j++) {
-          res[i].push(flatres[i*itemparams.length + j]);
+          res[i].push(flatresult[i*itemparams.length + j]);
         }
       }
-      Module._free(flatres);
+      Module._free(flatresult);
 
       assert.deepStrictEqual(format(expected), format(res));
     });
   });
 
-  describe('pder2brm()', function () {
-    it('two people, five items', function () {
+  describe('pder2brm:', function () {
+    it('pder2brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder2.brm(theta, params)`
       const expected = [
         [-0.18320057,  0.39034545,  0.2177993,  0.09805036,  0.07948274],
         [-0.01485815, -0.04900072, -0.1687273, -0.32144128, -0.16306764]
       ];
 
-      const flatres = ccallArrays('js_pder2brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(theta.length * itemparams.length, flatres.length);
+      const flatresult = ccallArrays('js_pder2brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
+      assert.equal(theta.length * itemparams.length, flatresult.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
         res.push([]);
         for (let j = 0; j < itemparams.length; j++) {
-          res[i].push(flatres[i*itemparams.length + j]);
+          res[i].push(flatresult[i*itemparams.length + j]);
         }
       }
-      Module._free(flatres);
+      Module._free(flatresult);
 
       assert.deepStrictEqual(format(expected), format(res));
     });
