@@ -16,6 +16,8 @@ using Eigen::Dynamic;
 /**
  * Generate the item probability matrix for person(s) with given ability estimates
  *
+ * Port of: p.brm.R
+ *
  * @param theta       Ability estimates buffer for N people
  * @param params      Parameters buffer for M items (M x 3 matrix)
  *
@@ -51,6 +53,8 @@ ArrayXXd pbrm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params
 
 /**
  * Derivative of the item probability matrix for person(s) with given ability estimates
+ *
+ * Port of: pder1.brm.R
  *
  * @param theta       Ability estimates buffer for N people
  * @param params      Parameters buffer for M items (M x 3 matrix)
@@ -89,6 +93,8 @@ ArrayXXd pder1brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& pa
 
 /**
  * 2nd derivative of the item probability matrix for person(s) with given ability estimates
+ *
+ * Port of: pder2.brm.R
  *
  * @param theta       Ability estimates buffer for N people
  * @param params      Parameters buffer for M items (M x 3 matrix)
@@ -129,6 +135,8 @@ ArrayXXd pder2brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& pa
 
 /**
  * Log-likelihoods of reponses to items at given ability estimates
+ *
+ * Port of: lder1.brm.R
  *
  * @param u           Item responses (N people x M responses)
  * @param theta       Ability estimates buffer for N people
