@@ -184,9 +184,9 @@ extern "C" {
 
 double* EMSCRIPTEN_KEEPALIVE js_pbrm(double *theta, int thetaSize, double *params, int paramsSize)
 {
-  Map<const ArrayXd> atheta(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > aparams(params, paramsSize/3, 3);
-  ArrayXXd p = pbrm(atheta, aparams);
+  Map<const ArrayXd> thetaMap(theta, thetaSize);
+  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
+  ArrayXXd p = pbrm(thetaMap, paramsMap);
   double *res = (double *)malloc(thetaSize * (paramsSize/3) * sizeof(double));
   int i = 0;
 
@@ -200,9 +200,9 @@ double* EMSCRIPTEN_KEEPALIVE js_pbrm(double *theta, int thetaSize, double *param
 
 double* EMSCRIPTEN_KEEPALIVE js_pder1brm(double *theta, int thetaSize, double *params, int paramsSize)
 {
-  Map<const ArrayXd> atheta(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > aparams(params, paramsSize/3, 3);
-  ArrayXXd p = pder1brm(atheta, aparams);
+  Map<const ArrayXd> thetaMap(theta, thetaSize);
+  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
+  ArrayXXd p = pder1brm(thetaMap, paramsMap);
   double *res = (double *)malloc(thetaSize * (paramsSize/3) * sizeof(double));
   int i = 0;
 
@@ -216,9 +216,9 @@ double* EMSCRIPTEN_KEEPALIVE js_pder1brm(double *theta, int thetaSize, double *p
 
 double* EMSCRIPTEN_KEEPALIVE js_pder2brm(double *theta, int thetaSize, double *params, int paramsSize)
 {
-  Map<const ArrayXd> atheta(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > aparams(params, paramsSize/3, 3);
-  ArrayXXd p = pder2brm(atheta, aparams);
+  Map<const ArrayXd> thetaMap(theta, thetaSize);
+  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
+  ArrayXXd p = pder2brm(thetaMap, paramsMap);
   double *res = (double *)malloc(thetaSize * (paramsSize/3) * sizeof(double));
   int i = 0;
 
