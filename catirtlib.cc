@@ -195,7 +195,7 @@ double* EMSCRIPTEN_KEEPALIVE js_pbrm(double *theta, int thetaSize, double *param
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
   ArrayXXd p = pbrm(thetaMap, paramsMap);
-  double *res = (double *)malloc(thetaSize * (paramsSize/3) * sizeof(double));
+  double *res = (double *)calloc(p.size(), sizeof(double));
   int i = 0;
 
   for (int m = 0; m < p.rows(); m++) {
@@ -211,7 +211,7 @@ double* EMSCRIPTEN_KEEPALIVE js_pder1brm(double *theta, int thetaSize, double *p
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
   ArrayXXd p = pder1brm(thetaMap, paramsMap);
-  double *res = (double *)malloc(thetaSize * (paramsSize/3) * sizeof(double));
+  double *res = (double *)calloc(p.size(), sizeof(double));
   int i = 0;
 
   for (int m = 0; m < p.rows(); m++) {
@@ -227,7 +227,7 @@ double* EMSCRIPTEN_KEEPALIVE js_pder2brm(double *theta, int thetaSize, double *p
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
   ArrayXXd p = pder2brm(thetaMap, paramsMap);
-  double *res = (double *)malloc(thetaSize * (paramsSize/3) * sizeof(double));
+  double *res = (double *)calloc(p.size(), sizeof(double));
   int i = 0;
 
   for (int m = 0; m < p.rows(); m++) {
@@ -244,7 +244,7 @@ double* EMSCRIPTEN_KEEPALIVE js_lder1brm(double *u, int uSize, double *theta, in
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
   Map<const Array<double, Dynamic, Dynamic, RowMajor> > uMap(u, thetaSize, uSize / thetaSize);
   ArrayXd l = lder1brm(uMap, thetaMap, paramsMap, (useWLE ? type_WLE : type_MLE));
-  double *res = (double *)malloc(thetaSize * sizeof(double));
+  double *res = (double *)calloc(l.size(), sizeof(double));
   int i = 0;
 
   for (int m = 0; m < l.rows(); m++) {
