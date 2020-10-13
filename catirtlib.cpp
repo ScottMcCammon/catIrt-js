@@ -23,7 +23,7 @@ using Eigen::Dynamic;
  *
  * @return person/item probability matrix (N x M) for N people and M items
  */
-ArrayXXd pbrm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -61,7 +61,7 @@ ArrayXXd pbrm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params
  *
  * @return person/item derivative probability matrix (N x M) for N people and M items
  */
-ArrayXXd pder1brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -101,7 +101,7 @@ ArrayXXd pder1brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& pa
  *
  * @return person/item 2nd derivative probability matrix (N x M) for N people and M items
  */
-ArrayXXd pder2brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -145,20 +145,20 @@ ArrayXXd pder2brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& pa
  *
  * @return derivative of log-likelihood for each person - vector (N x 1)
  */
-ArrayXd lder1brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, ldertype ltype )
+ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, ldertype ltype )
 {
   // u is the response, theta is ability, and params are the parameters.
   int N = theta.rows();
   int M = params.rows();
 
   // Calculating the probability of response:
-  ArrayXXd p = pbrm(theta, params);
+  ArrayXXd p = p_brm(theta, params);
   ArrayXXd q = (1 - p);
   ArrayXXd pq = (p * q);
 
   // Calculating the first and second derivatives:
-  ArrayXXd pder1 = pder1brm(theta, params);
-  ArrayXXd pder2 = pder2brm(theta, params);
+  ArrayXXd pder1 = pder1_brm(theta, params);
+  ArrayXXd pder2 = pder2_brm(theta, params);
 
   // Calculating lder1 for normal/Warm:
   ArrayXXd lder1 = ( u - p ) * pder1 / pq;
@@ -191,15 +191,15 @@ ArrayXd lder1brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta,
  *
  * @return 2nd derivative of log-likelihood for each person - vector (N x M)
  */
-ArrayXXd lder2brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params )
+ArrayXXd lder2_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params )
 {
   // Calculating the probability of response:
-  ArrayXXd p = pbrm(theta, params);
+  ArrayXXd p = p_brm(theta, params);
   ArrayXXd q = (1 - p);
 
   // Calculating the first and second derivatives:
-  ArrayXXd pder1 = pder1brm(theta, params);
-  ArrayXXd pder2 = pder2brm(theta, params);
+  ArrayXXd pder1 = pder1_brm(theta, params);
+  ArrayXXd pder2 = pder2_brm(theta, params);
 
   // Calculating two parts of second derivative:
   ArrayXXd lder2_1 = ( -pder1.square() / p.square() ) + ( pder2 / p );
@@ -218,11 +218,11 @@ ArrayXXd lder2brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta
 extern "C" {
 #endif
 
-double* EMSCRIPTEN_KEEPALIVE js_pbrm(double *theta, int thetaSize, double *params, int paramsSize)
+double* EMSCRIPTEN_KEEPALIVE js_p_brm(double *theta, int thetaSize, double *params, int paramsSize)
 {
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  ArrayXXd p = pbrm(thetaMap, paramsMap);
+  ArrayXXd p = p_brm(thetaMap, paramsMap);
   double *res = (double *)calloc(p.size(), sizeof(double));
   int i = 0;
 
@@ -234,11 +234,11 @@ double* EMSCRIPTEN_KEEPALIVE js_pbrm(double *theta, int thetaSize, double *param
   return res;
 }
 
-double* EMSCRIPTEN_KEEPALIVE js_pder1brm(double *theta, int thetaSize, double *params, int paramsSize)
+double* EMSCRIPTEN_KEEPALIVE js_pder1_brm(double *theta, int thetaSize, double *params, int paramsSize)
 {
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  ArrayXXd p = pder1brm(thetaMap, paramsMap);
+  ArrayXXd p = pder1_brm(thetaMap, paramsMap);
   double *res = (double *)calloc(p.size(), sizeof(double));
   int i = 0;
 
@@ -250,11 +250,11 @@ double* EMSCRIPTEN_KEEPALIVE js_pder1brm(double *theta, int thetaSize, double *p
   return res;
 }
 
-double* EMSCRIPTEN_KEEPALIVE js_pder2brm(double *theta, int thetaSize, double *params, int paramsSize)
+double* EMSCRIPTEN_KEEPALIVE js_pder2_brm(double *theta, int thetaSize, double *params, int paramsSize)
 {
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  ArrayXXd p = pder2brm(thetaMap, paramsMap);
+  ArrayXXd p = pder2_brm(thetaMap, paramsMap);
   double *res = (double *)calloc(p.size(), sizeof(double));
   int i = 0;
 
@@ -266,12 +266,12 @@ double* EMSCRIPTEN_KEEPALIVE js_pder2brm(double *theta, int thetaSize, double *p
   return res;
 }
 
-double* EMSCRIPTEN_KEEPALIVE js_lder1brm(double *u, int uSize, double *theta, int thetaSize, double *params, int paramsSize, int useWLE)
+double* EMSCRIPTEN_KEEPALIVE js_lder1_brm(double *u, int uSize, double *theta, int thetaSize, double *params, int paramsSize, int useWLE)
 {
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
   Map<const Array<double, Dynamic, Dynamic, RowMajor> > uMap(u, thetaSize, uSize / thetaSize);
-  ArrayXd l = lder1brm(uMap, thetaMap, paramsMap, (useWLE ? type_WLE : type_MLE));
+  ArrayXd l = lder1_brm(uMap, thetaMap, paramsMap, (useWLE ? type_WLE : type_MLE));
   double *res = (double *)calloc(l.size(), sizeof(double));
   int i = 0;
 
@@ -281,12 +281,12 @@ double* EMSCRIPTEN_KEEPALIVE js_lder1brm(double *u, int uSize, double *theta, in
   return res;
 }
 
-double* EMSCRIPTEN_KEEPALIVE js_lder2brm(double *u, int uSize, double *theta, int thetaSize, double *params, int paramsSize)
+double* EMSCRIPTEN_KEEPALIVE js_lder2_brm(double *u, int uSize, double *theta, int thetaSize, double *params, int paramsSize)
 {
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
   Map<const Array<double, Dynamic, Dynamic, RowMajor> > uMap(u, thetaSize, uSize / thetaSize);
-  ArrayXXd l = lder2brm(uMap, thetaMap, paramsMap);
+  ArrayXXd l = lder2_brm(uMap, thetaMap, paramsMap);
   double *res = (double *)calloc(l.size(), sizeof(double));
   int i = 0;
 
