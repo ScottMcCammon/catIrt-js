@@ -30,7 +30,7 @@ using Eigen::Dynamic;
  *
  * @return person/item probability matrix (N x M) for N people and M items
  */
-ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -68,7 +68,7 @@ ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& param
  *
  * @return person/item derivative probability matrix (N x M) for N people and M items
  */
-ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -108,7 +108,7 @@ ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& p
  *
  * @return person/item 2nd derivative probability matrix (N x M) for N people and M items
  */
-ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -152,7 +152,7 @@ ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& p
  *
  * @return derivative of log-likelihood for each person - vector (N x 1)
  */
-ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, LderType ltype )
+const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, LderType ltype )
 {
   // u is the response, theta is ability, and params are the parameters.
   int N = theta.rows();
@@ -198,7 +198,7 @@ ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta
  *
  * @return 2nd derivative of log-likelihood for each person - vector (N x M)
  */
-ArrayXXd lder2_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params )
+const ArrayXXd lder2_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params )
 {
   // Calculating the probability of response:
   ArrayXXd p = p_brm(theta, params);
