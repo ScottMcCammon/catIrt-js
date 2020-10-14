@@ -1,5 +1,4 @@
-#include <iostream>
-#include <Eigen/Dense>
+#include <Eigen/Core>
 #include <emscripten/emscripten.h>
 
 enum ldertype {type_MLE, type_WLE};
