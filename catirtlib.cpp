@@ -25,8 +25,8 @@ using Eigen::Dynamic;
  *
  * Port of: p.brm.R
  *
- * @param theta       Ability estimates buffer for N people
- * @param params      Parameters buffer for M items (M x 3 matrix)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
  *
  * @return person/item probability matrix (N x M) for N people and M items
  */
@@ -63,8 +63,8 @@ ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& param
  *
  * Port of: pder1.brm.R
  *
- * @param theta       Ability estimates buffer for N people
- * @param params      Parameters buffer for M items (M x 3 matrix)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
  *
  * @return person/item derivative probability matrix (N x M) for N people and M items
  */
@@ -103,8 +103,8 @@ ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& p
  *
  * Port of: pder2.brm.R
  *
- * @param theta       Ability estimates buffer for N people
- * @param params      Parameters buffer for M items (M x 3 matrix)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
  *
  * @return person/item 2nd derivative probability matrix (N x M) for N people and M items
  */
@@ -146,8 +146,8 @@ ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& p
  * Port of: lder1.brm.R
  *
  * @param u           Item responses (N people x M responses)
- * @param theta       Ability estimates buffer for N people
- * @param params      Parameters buffer for M items (M x 3 matrix)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
  * @param ltype       LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)
  *
  * @return derivative of log-likelihood for each person - vector (N x 1)
@@ -193,8 +193,8 @@ ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta
  * Port of: lder2.brm.R
  *
  * @param u           Item responses (N people x M responses)
- * @param theta       Ability estimates buffer for N people
- * @param params      Parameters buffer for M items (M x 3 matrix)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
  *
  * @return 2nd derivative of log-likelihood for each person - vector (N x M)
  */
