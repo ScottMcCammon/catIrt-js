@@ -1,7 +1,15 @@
 #include <Eigen/Core>
 #include <emscripten/emscripten.h>
 
-enum ldertype {type_MLE, type_WLE};
+enum class LderType {
+    MLE,
+    WLE
+};
+
+enum class FIType {
+    EXPECTED,
+    OBSERVED
+};
 
 using Eigen::Array;
 using Eigen::ArrayXXd;
@@ -140,11 +148,11 @@ ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& p
  * @param u           Item responses (N people x M responses)
  * @param theta       Ability estimates buffer for N people
  * @param params      Parameters buffer for M items (M x 3 matrix)
- * @param ltype       type_WLE (weighted likelihood) or type_MLE (maximum likelihood)
+ * @param ltype       LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)
  *
  * @return derivative of log-likelihood for each person - vector (N x 1)
  */
-ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, ldertype ltype )
+ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, LderType ltype )
 {
   // u is the response, theta is ability, and params are the parameters.
   int N = theta.rows();
@@ -163,7 +171,7 @@ ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta
   ArrayXXd lder1 = ( u - p ) * pder1 / pq;
 
   // Apply Warm correction:
-  if ( ltype == type_WLE ) {
+  if ( ltype == LderType::WLE ) {
     ArrayXd I = ( pder1.square() / pq ).rowwise().sum();
     ArrayXXd H = ( pder1 * pder2 ) / pq;
 
@@ -270,7 +278,7 @@ double* EMSCRIPTEN_KEEPALIVE js_lder1_brm(double *u, int uSize, double *theta, i
   Map<const ArrayXd> thetaMap(theta, thetaSize);
   Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
   Map<const Array<double, Dynamic, Dynamic, RowMajor> > uMap(u, thetaSize, uSize / thetaSize);
-  ArrayXd l = lder1_brm(uMap, thetaMap, paramsMap, (useWLE ? type_WLE : type_MLE));
+  ArrayXd l = lder1_brm(uMap, thetaMap, paramsMap, (useWLE ? LderType::WLE : LderType::MLE));
   double *res = (double *)calloc(l.size(), sizeof(double));
   int i = 0;
 
