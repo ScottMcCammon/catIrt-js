@@ -6,7 +6,7 @@ const {ccallArrays, cwrapArrays} = require('wasm-arrays');
 global.Module = {};
 
 // helper function for converting values to a fixed precision string for simple comparison
-function format(a, precision=7) {
+function format(a, precision=6) {
   return math.format(a, {precision});
 }
 
@@ -52,7 +52,7 @@ describe('catIrt webasm', function () {
       ];
 
       const flatresult = ccallArrays('js_p_brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(theta.length * itemparams.length, flatresult.length);
+      assert.equal(flatresult.length, theta.length * itemparams.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
@@ -63,7 +63,7 @@ describe('catIrt webasm', function () {
       }
       Module._free(flatresult);
 
-      assert.deepStrictEqual(format(expected), format(res));
+      assert.strictEqual(format(res), format(expected));
     });
   });
 
@@ -76,7 +76,7 @@ describe('catIrt webasm', function () {
       ];
 
       const flatresult = ccallArrays('js_pder1_brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(theta.length * itemparams.length, flatresult.length);
+      assert.equal(flatresult.length, theta.length * itemparams.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
@@ -87,7 +87,7 @@ describe('catIrt webasm', function () {
       }
       Module._free(flatresult);
 
-      assert.deepStrictEqual(format(expected), format(res));
+      assert.strictEqual(format(res), format(expected));
     });
   });
 
@@ -100,7 +100,7 @@ describe('catIrt webasm', function () {
       ];
 
       const flatresult = ccallArrays('js_pder2_brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(theta.length * itemparams.length, flatresult.length);
+      assert.equal(flatresult.length, theta.length * itemparams.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
@@ -111,7 +111,7 @@ describe('catIrt webasm', function () {
       }
       Module._free(flatresult);
 
-      assert.deepStrictEqual(format(expected), format(res));
+      assert.strictEqual(format(res), format(expected));
     });
   });
 
@@ -121,7 +121,7 @@ describe('catIrt webasm', function () {
       const expected = [1.797812, -5.838820];
 
       const flatresult = ccallArrays('js_lder1_brm', 'array', ['array', 'array', 'array', 'number'], [flaturesp, theta, flatparams, 0], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length});
-      assert.equal(expected.length, flatresult.length);
+      assert.equal(flatresult.length, expected.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
@@ -129,7 +129,7 @@ describe('catIrt webasm', function () {
       }
       Module._free(flatresult);
 
-      assert.deepStrictEqual(format(expected), format(res));
+      assert.strictEqual(format(res), format(expected));
     });
 
     it('lder1brm(u, theta, params, "WLE")', function () {
@@ -137,7 +137,7 @@ describe('catIrt webasm', function () {
       const expected = [2.067604, -6.474561];
 
       const flatresult = ccallArrays('js_lder1_brm', 'array', ['array', 'array', 'array', 'number'], [flaturesp, theta, flatparams, 1], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length});
-      assert.equal(expected.length, flatresult.length);
+      assert.equal(flatresult.length, expected.length);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
@@ -145,7 +145,7 @@ describe('catIrt webasm', function () {
       }
       Module._free(flatresult);
 
-      assert.deepStrictEqual(format(expected), format(res));
+      assert.strictEqual(format(res), format(expected));
     });
   });
 
@@ -157,8 +157,8 @@ describe('catIrt webasm', function () {
         [-0.01713032, -0.05638416, -0.1907768, -0.5042907, -0.35705145]
       ];
 
-      const flatresult = ccallArrays('js_lder2_brm', 'array', ['array', 'array', 'array'], [flaturesp, theta, flatparams, 0], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(theta.length * nitems, flatresult.length);
+      const flatresult = ccallArrays('js_lder2_brm', 'array', ['array', 'array', 'array'], [flaturesp, theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
+      assert.equal(flatresult.length, theta.length * nitems);
 
       let res = [];
       for (let i = 0; i < theta.length; i++) {
@@ -169,7 +169,7 @@ describe('catIrt webasm', function () {
       }
       Module._free(flatresult);
 
-      assert.deepStrictEqual(format(expected, 6), format(res, 6));
+      assert.strictEqual(format(res), format(expected));
     });
   });
 
