@@ -8,7 +8,7 @@
   },
   "scripts": {
     "clean": "rm dist/catirtlib.*",
-    "build": "emcc -O2 -I ./dist/eigen catirtlib.cpp -o dist/catirtlib.js -s WASM=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_RUNTIME_METHODS='[ccall, cwrap]' -s EXPORTED_FUNCTIONS='[_malloc, _free]'",
+    "build": "emcc -O2 --bind -I ./dist/eigen catirtlib.cpp --pre-js additions.js -o dist/catirtlib.js -s WASM=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_RUNTIME_METHODS='[ccall, cwrap]' -s EXPORTED_FUNCTIONS='[_malloc, _free]'",
     "test": "mocha"
   },
   "author": "Scott McCammon <mccammon@uoregon.edu>",

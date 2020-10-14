@@ -172,4 +172,78 @@ describe('catIrt webasm', function () {
       assert.deepStrictEqual(format(expected, 6), format(res, 6));
     });
   });
+
+  describe('FI_brm:', function () {
+    it('FI_brm(params, theta, EXPECTED)', function () {
+      const expected = {
+        type: Module.FIType.EXPECTED,
+        item: [
+          [0.4144132, 0.15081586, 0.1230584, 0.02053748, 0.02596604],
+          [0.0150616, 0.04958082, 0.1924912, 0.43542257, 0.38347792]
+        ],
+        test: [
+          [0.734791],
+          [1.076034]
+        ],
+        sem: [
+          [1.1665896],
+          [0.9640221]
+        ]
+      };
+
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const mResp = new Module.Matrix(0, 0);
+      const res = Module.FI_brm(mParams, mTheta, Module.FIType.EXPECTED, mResp);
+
+      assert.strictEqual(res.type, expected.type);
+      assert.strictEqual(format(Module.MatrixToArray(res.item)), format(expected.item));
+      assert.strictEqual(format(Module.MatrixToArray(res.test)), format(expected.test));
+      assert.strictEqual(format(Module.MatrixToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      mResp.delete();
+      res.item.delete();
+      res.test.delete();
+      res.sem.delete();
+    });
+
+    it('FI_brm(params, theta, OBSERVED, resp)', function () {
+      const expected = {
+        type: Module.FIType.OBSERVED,
+        item: [
+          [0.38726367, -1.54763399, -0.5928689, 0.1181999, 0.09989038],
+          [0.01713032,  0.05638416,  0.1907768, 0.5042907, 0.35705145]
+        ],
+        test: [
+          [-1.535149],
+          [1.125633]
+        ],
+        sem: [
+          [NaN],
+          [0.9425437]
+        ]
+      };
+
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const mResp = Module.MatrixFromArray(uresp);
+      const res = Module.FI_brm(mParams, mTheta, Module.FIType.OBSERVED, mResp);
+
+      assert.strictEqual(res.type, expected.type);
+      assert.strictEqual(format(Module.MatrixToArray(res.item)), format(expected.item));
+      assert.strictEqual(format(Module.MatrixToArray(res.test)), format(expected.test));
+      assert.strictEqual(format(Module.MatrixToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      mResp.delete();
+      res.item.delete();
+      res.test.delete();
+      res.sem.delete();
+    });
+  });
 });
