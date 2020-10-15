@@ -43,8 +43,8 @@ describe('catIrt webasm', function () {
   });
 
   // define test suite
-  describe('pbrm:', function () {
-    it('pbrm(theta, params)', function () {
+  describe('p_brm:', function () {
+    it('p_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::p.brm(theta, params)`
       const expected = [
         [0.7454547, 0.1714823, 0.2016578, 0.1452349, 0.1621502],
@@ -64,8 +64,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('pder1brm:', function () {
-    it('pder1brm(theta, params)', function () {
+  describe('pder1_brm:', function () {
+    it('pder1_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder1.brm(theta, params)`
       const expected = [
         [0.280420646, 0.14638078, 0.1407530, 0.05049314, 0.05939428],
@@ -85,8 +85,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('pder2brm:', function () {
-    it('pder2brm(theta, params)', function () {
+  describe('pder2_brm:', function () {
+    it('pder2_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder2.brm(theta, params)`
       const expected = [
         [-0.18320057,  0.39034545,  0.2177993,  0.09805036,  0.07948274],
@@ -106,8 +106,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('lder1brm:', function () {
-    it('lder1brm(u, theta, params, "MLE")', function () {
+  describe('lder1_brm:', function () {
+    it('lder1_brm(u, theta, params, "MLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='MLE')`
       const expected = [
         [1.797812],
@@ -128,7 +128,7 @@ describe('catIrt webasm', function () {
       res.delete();
     });
 
-    it('lder1brm(u, theta, params, "WLE")', function () {
+    it('lder1_brm(u, theta, params, "WLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='WLE')`
       const expected = [
         [2.067604],
@@ -150,8 +150,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('lder2brm:', function () {
-    it('lder2brm(u, theta, params)', function () {
+  describe('lder2_brm:', function () {
+    it('lder2_brm(u, theta, params)', function () {
       // expected values from R equivalent: `catIrt::lder2.brm(u, theta, params)`
       const expected = [
         [-0.38726367,  1.54763399,  0.5928689, -0.1181999, -0.09989038],
@@ -174,7 +174,7 @@ describe('catIrt webasm', function () {
   });
 
   describe('FI_brm:', function () {
-    it('FI_brm(params, theta, EXPECTED)', function () {
+    it('FI_brm(params, theta, "EXPECTED")', function () {
       const expected = {
         type: Module.FIType.EXPECTED,
         item: [
@@ -210,7 +210,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('FI_brm(params, theta, OBSERVED, resp)', function () {
+    it('FI_brm(params, theta, "OBSERVED", resp)', function () {
       const expected = {
         type: Module.FIType.OBSERVED,
         item: [
