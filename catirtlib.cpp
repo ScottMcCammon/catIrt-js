@@ -173,7 +173,7 @@ const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>&
 
     // R equivalent: H = (H / ( 2 * I ))
     for (int j = 0; j < M; j++) {
-      H.block(0, j, N, 1) /= (2 * I);
+      H.col(j) /= (2 * I);
     }
 
     lder1 += H;
