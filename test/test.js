@@ -51,19 +51,16 @@ describe('catIrt webasm', function () {
         [0.9936800, 0.9945256, 0.9424697, 0.8787063, 0.7380471]
       ];
 
-      const flatresult = ccallArrays('js_p_brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(flatresult.length, theta.length * itemparams.length);
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const res = Module.p_brm(mTheta, mParams);
 
-      let res = [];
-      for (let i = 0; i < theta.length; i++) {
-        res.push([]);
-        for (let j = 0; j < itemparams.length; j++) {
-          res[i].push(flatresult[i*itemparams.length + j]);
-        }
-      }
-      Module._free(flatresult);
+      assert.strictEqual(format(Module.MatrixToArray(res)), format(expected));
 
-      assert.strictEqual(format(res), format(expected));
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
     });
   });
 
@@ -75,19 +72,16 @@ describe('catIrt webasm', function () {
         [0.009725599, 0.01642982, 0.1021615, 0.21542517, 0.27228506]
       ];
 
-      const flatresult = ccallArrays('js_pder1_brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(flatresult.length, theta.length * itemparams.length);
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const res = Module.pder1_brm(mTheta, mParams);
 
-      let res = [];
-      for (let i = 0; i < theta.length; i++) {
-        res.push([]);
-        for (let j = 0; j < itemparams.length; j++) {
-          res[i].push(flatresult[i*itemparams.length + j]);
-        }
-      }
-      Module._free(flatresult);
+      assert.strictEqual(format(Module.MatrixToArray(res)), format(expected));
 
-      assert.strictEqual(format(res), format(expected));
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
     });
   });
 
@@ -99,53 +93,60 @@ describe('catIrt webasm', function () {
         [-0.01485815, -0.04900072, -0.1687273, -0.32144128, -0.16306764]
       ];
 
-      const flatresult = ccallArrays('js_pder2_brm', 'array', ['array', 'array'], [theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(flatresult.length, theta.length * itemparams.length);
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const res = Module.pder2_brm(mTheta, mParams);
 
-      let res = [];
-      for (let i = 0; i < theta.length; i++) {
-        res.push([]);
-        for (let j = 0; j < itemparams.length; j++) {
-          res[i].push(flatresult[i*itemparams.length + j]);
-        }
-      }
-      Module._free(flatresult);
+      assert.strictEqual(format(Module.MatrixToArray(res)), format(expected));
 
-      assert.strictEqual(format(res), format(expected));
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
     });
   });
 
   describe('lder1brm:', function () {
     it('lder1brm(u, theta, params, "MLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='MLE')`
-      const expected = [1.797812, -5.838820];
+      const expected = [
+        [1.797812],
+        [-5.838820]
+      ];
 
-      const flatresult = ccallArrays('js_lder1_brm', 'array', ['array', 'array', 'array', 'number'], [flaturesp, theta, flatparams, 0], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length});
-      assert.equal(flatresult.length, expected.length);
+      const mResp = Module.MatrixFromArray(uresp);
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const res = Module.lder1_brm(mResp, mTheta, mParams, Module.LderType.MLE);
 
-      let res = [];
-      for (let i = 0; i < theta.length; i++) {
-        res.push(flatresult[i]);
-      }
-      Module._free(flatresult);
+      assert.strictEqual(format(Module.MatrixToArray(res)), format(expected));
 
-      assert.strictEqual(format(res), format(expected));
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
     });
 
     it('lder1brm(u, theta, params, "WLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='WLE')`
-      const expected = [2.067604, -6.474561];
+      const expected = [
+        [2.067604],
+        [-6.474561]
+      ];
 
-      const flatresult = ccallArrays('js_lder1_brm', 'array', ['array', 'array', 'array', 'number'], [flaturesp, theta, flatparams, 1], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length});
-      assert.equal(flatresult.length, expected.length);
+      const mResp = Module.MatrixFromArray(uresp);
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const res = Module.lder1_brm(mResp, mTheta, mParams, Module.LderType.WLE);
 
-      let res = [];
-      for (let i = 0; i < theta.length; i++) {
-        res.push(flatresult[i]);
-      }
-      Module._free(flatresult);
+      assert.strictEqual(format(Module.MatrixToArray(res)), format(expected));
 
-      assert.strictEqual(format(res), format(expected));
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
     });
   });
 
@@ -157,19 +158,18 @@ describe('catIrt webasm', function () {
         [-0.01713032, -0.05638416, -0.1907768, -0.5042907, -0.35705145]
       ];
 
-      const flatresult = ccallArrays('js_lder2_brm', 'array', ['array', 'array', 'array'], [flaturesp, theta, flatparams], {heapIn: 'HEAPF64', heapOut: 'HEAPF64', returnArraySize: theta.length * nitems});
-      assert.equal(flatresult.length, theta.length * nitems);
+      const mResp = Module.MatrixFromArray(uresp);
+      const mParams = Module.MatrixFromArray(itemparams);
+      const mTheta = Module.MatrixFromArray([theta]);
+      const res = Module.lder2_brm(mResp, mTheta, mParams);
 
-      let res = [];
-      for (let i = 0; i < theta.length; i++) {
-        res.push([]);
-        for (let j = 0; j < itemparams.length; j++) {
-          res[i].push(flatresult[i*itemparams.length + j]);
-        }
-      }
-      Module._free(flatresult);
+      assert.strictEqual(format(Module.MatrixToArray(res)), format(expected));
 
-      assert.strictEqual(format(res), format(expected));
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
     });
   });
 

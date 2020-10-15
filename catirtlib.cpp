@@ -1,5 +1,4 @@
 #include <Eigen/Core>
-#include <emscripten/emscripten.h>
 #include <emscripten/bind.h>
 
 enum class LderType {
@@ -13,15 +12,7 @@ enum class FIType {
 };
 
 using namespace emscripten;
-
-using Eigen::Array;
-using Eigen::ArrayXXd;
-using Eigen::ArrayXd;
-using Eigen::ArrayX3d;
-using Eigen::Ref;
-using Eigen::Map;
-using Eigen::RowMajor;
-using Eigen::Dynamic;
+using namespace Eigen;
 
 /**
  * Generate the item probability matrix for person(s) with given ability estimates
@@ -304,97 +295,9 @@ const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const Array
  *
  *******************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-double* EMSCRIPTEN_KEEPALIVE js_p_brm(double *theta, int thetaSize, double *params, int paramsSize)
-{
-  Map<const ArrayXd> thetaMap(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  ArrayXXd p = p_brm(thetaMap, paramsMap);
-  double *res = (double *)calloc(p.size(), sizeof(double));
-  int i = 0;
-
-  for (int m = 0; m < p.rows(); m++) {
-    for (int n = 0; n < p.cols(); n++) {
-      res[i++] = p(m, n);
-    }
-  }
-  return res;
-}
-
-double* EMSCRIPTEN_KEEPALIVE js_pder1_brm(double *theta, int thetaSize, double *params, int paramsSize)
-{
-  Map<const ArrayXd> thetaMap(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  ArrayXXd p = pder1_brm(thetaMap, paramsMap);
-  double *res = (double *)calloc(p.size(), sizeof(double));
-  int i = 0;
-
-  for (int m = 0; m < p.rows(); m++) {
-    for (int n = 0; n < p.cols(); n++) {
-      res[i++] = p(m, n);
-    }
-  }
-  return res;
-}
-
-double* EMSCRIPTEN_KEEPALIVE js_pder2_brm(double *theta, int thetaSize, double *params, int paramsSize)
-{
-  Map<const ArrayXd> thetaMap(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  ArrayXXd p = pder2_brm(thetaMap, paramsMap);
-  double *res = (double *)calloc(p.size(), sizeof(double));
-  int i = 0;
-
-  for (int m = 0; m < p.rows(); m++) {
-    for (int n = 0; n < p.cols(); n++) {
-      res[i++] = p(m, n);
-    }
-  }
-  return res;
-}
-
-double* EMSCRIPTEN_KEEPALIVE js_lder1_brm(double *u, int uSize, double *theta, int thetaSize, double *params, int paramsSize, int useWLE)
-{
-  Map<const ArrayXd> thetaMap(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  Map<const Array<double, Dynamic, Dynamic, RowMajor> > uMap(u, thetaSize, uSize / thetaSize);
-  ArrayXd l = lder1_brm(uMap, thetaMap, paramsMap, (useWLE ? LderType::WLE : LderType::MLE));
-  double *res = (double *)calloc(l.size(), sizeof(double));
-  int i = 0;
-
-  for (int m = 0; m < l.rows(); m++) {
-    res[i++] = l(m, 0);
-  }
-  return res;
-}
-
-double* EMSCRIPTEN_KEEPALIVE js_lder2_brm(double *u, int uSize, double *theta, int thetaSize, double *params, int paramsSize)
-{
-  Map<const ArrayXd> thetaMap(theta, thetaSize);
-  Map<const Array<double, Dynamic, 3, RowMajor> > paramsMap(params, paramsSize/3, 3);
-  Map<const Array<double, Dynamic, Dynamic, RowMajor> > uMap(u, thetaSize, uSize / thetaSize);
-  ArrayXXd l = lder2_brm(uMap, thetaMap, paramsMap);
-  double *res = (double *)calloc(l.size(), sizeof(double));
-  int i = 0;
-
-  for (int m = 0; m < l.rows(); m++) {
-    for (int n = 0; n < l.cols(); n++) {
-      res[i++] = l(m, n);
-    }
-  }
-  return res;
-}
-
-#ifdef __cplusplus
-}
-#endif
-
 // wrapper class for Eigen::Array to JS binding
 class JSMatrix {
-    using Mat = Eigen::Array<double, Dynamic, Dynamic>;
+    using Mat = Array<double, Dynamic, Dynamic>;
     using Vector = std::vector<double>;
     using Vector2d = std::vector<std::vector<double>>;
 
@@ -464,6 +367,31 @@ public:
     }
 };
 
+const JSMatrix embind_p_brm(const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(p_brm(theta->toEigen(), params->toEigen()));
+}
+
+const JSMatrix embind_pder1_brm(const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(pder1_brm(theta->toEigen(), params->toEigen()));
+}
+
+const JSMatrix embind_pder2_brm(const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(pder2_brm(theta->toEigen(), params->toEigen()));
+}
+
+const JSMatrix embind_lder1_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
+{
+  return JSMatrix(lder1_brm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
+}
+
+const JSMatrix embind_lder2_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(lder2_brm(u->toEigen(), theta->toEigen(), params->toEigen()));
+}
+
 // wraps FI_Result Array properties into JSMatrix
 struct JSFI_Result
 {
@@ -501,6 +429,11 @@ EMSCRIPTEN_BINDINGS(Module)
     register_vector<double>("Vector");
     register_vector<std::vector<double>>("Vector2d");
 
+    enum_<LderType>("LderType")
+        .value("MLE", LderType::MLE)
+        .value("WLE", LderType::WLE)
+        ;
+
     enum_<FIType>("FIType")
         .value("EXPECTED", FIType::EXPECTED)
         .value("OBSERVED", FIType::OBSERVED)
@@ -523,6 +456,11 @@ EMSCRIPTEN_BINDINGS(Module)
         .function("set", &JSMatrix::set)
         ;
 
+    function("p_brm", &embind_p_brm, allow_raw_pointers());
+    function("pder1_brm", &embind_pder1_brm, allow_raw_pointers());
+    function("pder2_brm", &embind_pder2_brm, allow_raw_pointers());
+    function("lder1_brm", &embind_lder1_brm, allow_raw_pointers());
+    function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
     function("FI_brm", &embind_FI_brm, allow_raw_pointers());
 }
 
