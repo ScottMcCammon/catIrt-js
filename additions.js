@@ -25,3 +25,11 @@ Module['MatrixToArray'] = function(m) {
   }
   return res;
 };
+
+Module['VectorToArray'] = function(v) {
+  const res = [];
+  for (let i = 0; i < v.size(); i++) {
+    res.push(v.get(i));
+  }
+  return res;
+};

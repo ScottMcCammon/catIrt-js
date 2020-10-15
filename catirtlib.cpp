@@ -14,6 +14,8 @@ enum class FIType {
 using namespace emscripten;
 using namespace Eigen;
 
+using Vector = std::vector<double>;
+
 /**
  * Generate the item probability matrix for person(s) with given ability estimates
  *
@@ -295,6 +297,18 @@ const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const Array
  *
  *******************************************/
 
+const Vector VectorFromMatrix( const Ref<const ArrayXXd>& m )
+{
+    assert((m.rows() <= 1 || m.cols() <= 1) && "Matrix must be 0 or 1 dimensional");
+    Vector res;
+    for (int i = 0; i < m.rows(); i++) {
+        for (int j = 0; j < m.cols(); j++) {
+            res.push_back(m(i, j));
+        }
+    }
+    return res;
+}
+
 // wrapper class for Eigen::Array to JS binding
 class JSMatrix {
     using Mat = Array<double, Dynamic, Dynamic>;
@@ -382,9 +396,9 @@ const JSMatrix embind_pder2_brm(const JSMatrix *theta, const JSMatrix *params)
   return JSMatrix(pder2_brm(theta->toEigen(), params->toEigen()));
 }
 
-const JSMatrix embind_lder1_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
+const Vector embind_lder1_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
 {
-  return JSMatrix(lder1_brm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
+  return VectorFromMatrix(lder1_brm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
 }
 
 const JSMatrix embind_lder2_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
@@ -396,8 +410,8 @@ const JSMatrix embind_lder2_brm(const JSMatrix *u, const JSMatrix *theta, const 
 struct JSFI_Result
 {
     JSMatrix item;
-    JSMatrix test;
-    JSMatrix sem;
+    Vector test;
+    Vector sem;
     FIType type;
 
     JSFI_Result() {}
@@ -405,8 +419,8 @@ struct JSFI_Result
     JSFI_Result(const FI_Result &r)
     {
         item = JSMatrix(r.item);
-        test = JSMatrix(r.test);
-        sem = JSMatrix(r.sem);
+        test = VectorFromMatrix(r.test);
+        sem = VectorFromMatrix(r.sem);
         type = r.type;
     }
 
