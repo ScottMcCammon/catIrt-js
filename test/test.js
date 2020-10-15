@@ -1,13 +1,11 @@
 'use strict';
 const mathjs = require('mathjs');
-const math = mathjs.create(mathjs.all);
 const assert = require('assert').strict;
-const {ccallArrays, cwrapArrays} = require('wasm-arrays');
 global.Module = {};
 
 // helper function for converting values to a fixed precision string for simple comparison
 function format(a, precision=6) {
-  return math.format(a, {precision});
+  return mathjs.format(a, {precision});
 }
 
 describe('catIrt webasm', function () {

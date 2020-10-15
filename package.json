@@ -15,7 +15,6 @@
   "license": "GPL-2.0-or-later",
   "devDependencies": {
     "mathjs": "^7.5.1",
-    "mocha": "^8.1.3",
-    "wasm-arrays": "^1.0.2"
+    "mocha": "^8.1.3"
   }
 }
