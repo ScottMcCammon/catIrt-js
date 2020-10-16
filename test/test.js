@@ -239,7 +239,7 @@ describe('catIrt webasm', function () {
       };
 
       const mRange = catirtlib.MatrixFromArray([range]);
-      const mResp = new catirtlib.MatrixFromArray([uresp[0]]);
+      const mResp = catirtlib.MatrixFromArray([uresp[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
 
@@ -263,7 +263,7 @@ describe('catIrt webasm', function () {
       };
 
       const mRange = catirtlib.MatrixFromArray([range]);
-      const mResp = new catirtlib.MatrixFromArray([uresp[1]]);
+      const mResp = catirtlib.MatrixFromArray([uresp[1]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
 
@@ -287,7 +287,7 @@ describe('catIrt webasm', function () {
         sem: [0.5543441]
       };
 
-      const mResp = new catirtlib.MatrixFromArray([uresp[0]]);
+      const mResp = catirtlib.MatrixFromArray([uresp[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
       const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
@@ -317,7 +317,7 @@ describe('catIrt webasm', function () {
         sem: [3.5023960]
       };
 
-      const mResp = new catirtlib.MatrixFromArray([uresp[1]]);
+      const mResp = catirtlib.MatrixFromArray([uresp[1]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
       const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
@@ -342,7 +342,7 @@ describe('catIrt webasm', function () {
         sem: [0.5543441, 3.5023960]
       };
 
-      const mResp = new catirtlib.MatrixFromArray(uresp);
+      const mResp = catirtlib.MatrixFromArray(uresp);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
       const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
