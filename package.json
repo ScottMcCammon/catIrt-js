@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "rm dist/catirtlib.*",
     "build": "emcc -O2 --bind -I ./dist/eigen catirtlib.cpp --pre-js additions.js -o dist/catirtlib.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='createCatIrtLib'",
-    "test": "mocha"
+    "test": "mocha --exclude 'test/manual*.js'"
   },
   "author": "Scott McCammon <mccammon@uoregon.edu>",
   "license": "GPL-2.0-or-later",
