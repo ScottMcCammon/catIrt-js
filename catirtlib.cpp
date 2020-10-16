@@ -1,5 +1,6 @@
 #include <Eigen/Core>
 #include <emscripten/bind.h>
+#include <float.h>
 
 enum class LderType {
     MLE,
@@ -9,6 +10,11 @@ enum class LderType {
 enum class FIType {
     EXPECTED,
     OBSERVED
+};
+
+enum class ModelType {
+    BRM,
+    GRM
 };
 
 using namespace emscripten;
@@ -291,6 +297,180 @@ const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const Array
   return result;
 }
 
+struct Uniroot_Result
+{
+    double root;
+    double f_root;
+    int iter;
+    double estim_prec;
+};
+
+/**
+ * Search the range interval for a root of the specificed lder1 function with respect to theta
+ *
+ * Combined port of: uniroot and R_zeroin2, Copyright (C) 1999-2016  The R Core Team 
+ *   https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/R/nlm.R#L55
+ *   https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/src/zeroin.c
+ *
+ * @param lderFP      Pointer to lder1_brm or lder1_grm functions
+ * @param range       Interval to search: should be [-X,+X] for some positive X
+ * @param resp        Item responses for a single person (1 x M)
+ * @param params      Parameters for M items (M x 3 matrix)
+ * @param type        LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)
+ * @param maxit       Maximum number of iterations for search (default: 1000)
+ * @param tol         Acceptable tolerance level (default: EPSILON^0.25)
+ *
+ * @return Uniroot_Result with iter=-1 if a root did not converge within max iterations
+ */
+Uniroot_Result uniroot_lder1(
+    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayX3d>&, LderType),
+    const Ref<const RowVector2d>& range,
+    const Ref<const ArrayXXd>& resp,
+    const Ref<const ArrayX3d>& params,
+    LderType type,
+    int maxit = 1000,
+    double tol = 0.0
+)
+{
+    double lower = range(0); // ax
+    double upper = range(1); // bx
+    double a, b, c;          // Abscissae, descr. see above
+    double fa, fb, fc;       // f(a), f(b), f(c)
+    Array<double, 1, 1> tmpTheta;
+    Array<double, 1, 1> lderResult;
+    Uniroot_Result result{0};
+
+    // NOTE: removed code to extend interval if lower * upper > 0
+
+    // Set default tolerance
+    if (tol <= 0) {
+        tol = pow(DBL_EPSILON, 0.25);
+    }
+
+    // First test if we have found a root at an endpoint
+    a = lower;
+    b = upper;
+
+    tmpTheta(0) = a;
+    lderResult = (*lderFP)(resp, tmpTheta, params, type);
+    fa = lderResult(0);
+    if (fa == 0.0) {
+        result.root = a;
+        result.f_root = fa;
+        result.iter = 0;
+        result.estim_prec = 0.0;
+        return result;
+    }
+
+    tmpTheta(0) = b;
+    lderResult = (*lderFP)(resp, tmpTheta, params, type);
+    fb = lderResult(0);
+    if (fb ==  0.0) {
+        result.root = b;
+        result.f_root = fb;
+        result.iter = 0;
+        result.estim_prec = 0.0;
+        return result;
+    }
+
+    // Now search the range for a root
+    c = a;
+    fc = fa;
+
+    for (int it = 0; it < (maxit + 1); it++) {
+        double prev_step = b - a; // Distance from the last but one to the last approximation
+        double tol_act;           // Actual tolerance
+
+        // Interpolation step is calculated in the form p/q; division operations is delayed until the last moment
+        double p;
+        double q;
+
+        double new_step; // Step at this iteration
+
+        if (fabs(fc) < fabs(fb)) {
+            // Swap data for b to be the best approximation
+            a = b;  b = c;  c = a;
+            fa=fb;  fb=fc;  fc=fa;
+        }
+        tol_act = 2 * DBL_EPSILON * fabs(b) + tol / 2;
+        new_step = (c - b) / 2;
+
+        if (fabs(new_step) <= tol_act || fb == 0.0) {
+            // Acceptable approx. is found
+            result.root = b;
+            result.f_root = fb;
+            result.iter = it;
+            result.estim_prec = fabs(c - b);
+            return result;
+        }
+
+        // Try interpolation
+        if (fabs(prev_step) >= tol_act	// If prev_step was large enough
+            && fabs(fa) > fabs(fb)) {	// and was in true direction
+            double t1,cb,t2;
+            cb = c-b;
+            if (a == c) {
+                // If we have only two distinct points linear interpolation can only be applied
+                t1 = fb / fa;
+                p = cb * t1;
+                q = 1.0 - t1;
+            }
+            else {
+                // Quadric inverse interpolation
+                q = fa / fc;  t1 = fb / fc;	 t2 = fb / fa;
+                p = t2 * (cb * q * (q - t1) - (b - a) * (t1 - 1.0));
+                q = (q - 1.0) * (t1 - 1.0) * (t2 - 1.0);
+            }
+
+            // p was calculated with the opposite sign; make p positiv and assign possible minus to q
+            if( p > 0.0 ) {
+                q = -q;
+            } else {
+                p = -p;
+            }
+
+            if (p < (0.75 * cb * q - fabs(tol_act * q) / 2) // If b+p/q falls in [b,c]
+                && p < fabs(prev_step * q / 2)) {	        // and isn't too large
+                // it is accepted
+                new_step = p/q;
+            }
+            // Otherwise, if p/q is too large then the bisection procedure can reduce [b,c] range to more extent
+        }
+
+        if (fabs(new_step) < tol_act) {
+            // Adjust the step to be not less than tolerance
+            if (new_step > 0.0) {
+                new_step = tol_act;
+            } else {
+                new_step = -tol_act;
+            }
+        }
+
+        // Save the previous approx.
+        a = b;
+        fa = fb;
+
+        // Do step to a new approxim.
+        b += new_step;
+        tmpTheta(0) = b;
+        lderResult = (*lderFP)(resp, tmpTheta, params, type);
+        fb = lderResult(0);
+
+        // Adjust c for it to have a sign opposite to that of b
+        if ((fb > 0 && fc > 0) || (fb < 0 && fc < 0)) {
+            c = a;
+            fc = fa;
+        }
+    }
+
+    // failed!
+    result.root = b;
+    result.f_root = fb;
+    result.iter = -1;
+    result.estim_prec = fabs(c - b);
+    return result;
+}
+
 /*******************************************
  *
  * Begin JavaScript Bridge
@@ -438,6 +618,19 @@ JSFI_Result embind_FI_brm(const JSMatrix *params, const JSMatrix *theta, FIType 
   return JSFI_Result(FI_brm(params->toEigen(), theta->toEigen(), type, resp->toEigen()));
 }
 
+Uniroot_Result embind_uniroot_lder1(const JSMatrix *range, const JSMatrix *resp, const JSMatrix *params, LderType type, ModelType model)
+{
+    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayX3d>&, LderType);
+
+    if (model == ModelType::BRM) {
+        lderFP = &lder1_brm;
+    } else {
+        throw "embind_uniroot_lder1 model type GRM not yet supported";
+    }
+
+    return uniroot_lder1(lderFP, RowVector2d(range->toEigen()), resp->toEigen(), params->toEigen(), type);
+}
+
 EMSCRIPTEN_BINDINGS(Module)
 {
     register_vector<double>("Vector");
@@ -453,11 +646,23 @@ EMSCRIPTEN_BINDINGS(Module)
         .value("OBSERVED", FIType::OBSERVED)
         ;
 
+    enum_<ModelType>("ModelType")
+        .value("BRM", ModelType::BRM)
+        .value("GRM", ModelType::GRM)
+        ;
+
     value_object<JSFI_Result>("FI_Result")
         .field("item", &JSFI_Result::item)
         .field("test", &JSFI_Result::test)
         .field("sem", &JSFI_Result::sem)
         .field("type", &JSFI_Result::type)
+        ;
+
+    value_object<Uniroot_Result>("Uniroot_Result")
+        .field("root", &Uniroot_Result::root)
+        .field("f_root", &Uniroot_Result::f_root)
+        .field("iter", &Uniroot_Result::iter)
+        .field("estim_prec", &Uniroot_Result::estim_prec)
         ;
 
     class_<JSMatrix>("Matrix")
@@ -476,6 +681,7 @@ EMSCRIPTEN_BINDINGS(Module)
     function("lder1_brm", &embind_lder1_brm, allow_raw_pointers());
     function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
     function("FI_brm", &embind_FI_brm, allow_raw_pointers());
+    function("uniroot_lder1", &embind_uniroot_lder1, allow_raw_pointers());
 }
 
 /*******************************************

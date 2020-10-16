@@ -11,6 +11,7 @@ function format(a, precision=6) {
 
 describe('catIrt webasm', function () {
   // setup data
+  const range = [-4.5, 4.5];
   const theta = [-1.3, 1.3];
   const uresp = [
       [1, 1, 1, 0, 0],
@@ -225,6 +226,56 @@ describe('catIrt webasm', function () {
       res.item.delete();
       res.test.delete();
       res.sem.delete();
+    });
+  });
+
+  describe('uniroot_lder1:', function () {
+    it('uniroot_lder1(range, uresp[0], params, "WLE", "BRM")', function () {
+      const expected = {
+        root: 0.02317778,
+        f_root: -1.406347e-05,
+        iter: 9,
+        estim_prec: 6.103516e-05
+      };
+
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const mResp = new catirtlib.MatrixFromArray([uresp[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
+
+      assert.strictEqual(format(res.root), format(expected.root));
+      assert.strictEqual(format(res.f_root), format(expected.f_root));
+      assert.strictEqual(format(res.iter), format(expected.iter));
+      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
+
+      // wasm heap cleanup
+      mRange.delete();
+      mResp.delete();
+      mParams.delete();
+    });
+
+    it('uniroot_lder1(range, uresp[1], params, "WLE", "BRM")', function () {
+      const expected = {
+        root: -2.286811,
+        f_root: 4.785281e-06,
+        iter: 10,
+        estim_prec: 6.103516e-05
+      };
+
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const mResp = new catirtlib.MatrixFromArray([uresp[1]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
+
+      assert.strictEqual(format(res.root), format(expected.root));
+      assert.strictEqual(format(res.f_root), format(expected.f_root));
+      assert.strictEqual(format(res.iter), format(expected.iter));
+      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
+
+      // wasm heap cleanup
+      mRange.delete();
+      mResp.delete();
+      mParams.delete();
     });
   });
 });
