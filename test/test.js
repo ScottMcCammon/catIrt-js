@@ -322,11 +322,6 @@ describe('catIrt webasm', function () {
       const mRange = catirtlib.MatrixFromArray([range]);
       const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
 
-      assert.strictEqual(format(res.root), format(expected.root));
-      assert.strictEqual(format(res.f_root), format(expected.f_root));
-      assert.strictEqual(format(res.iter), format(expected.iter));
-      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
-
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
       assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
@@ -351,11 +346,6 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
       const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
-
-      assert.strictEqual(format(res.root), format(expected.root));
-      assert.strictEqual(format(res.f_root), format(expected.f_root));
-      assert.strictEqual(format(res.iter), format(expected.iter));
-      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
