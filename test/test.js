@@ -278,4 +278,96 @@ describe('catIrt webasm', function () {
       mParams.delete();
     });
   });
+
+  describe('wleEst:', function () {
+    it('wleEst(uresp[0], params, range, "BRM")', function () {
+      const expected = {
+        theta: [0.02317778],
+        info: [3.341271],
+        sem: [0.5543441]
+      };
+
+      const mResp = new catirtlib.MatrixFromArray([uresp[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
+
+      assert.strictEqual(format(res.root), format(expected.root));
+      assert.strictEqual(format(res.f_root), format(expected.f_root));
+      assert.strictEqual(format(res.iter), format(expected.iter));
+      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mRange.delete();
+      res.theta.delete();
+      res.info.delete();
+      res.sem.delete();
+    });
+
+    it('wleEst(uresp[1], params, range, "BRM")', function () {
+      const expected = {
+        theta: [-2.28681109],
+        info: [0.1233062],
+        sem: [3.5023960]
+      };
+
+      const mResp = new catirtlib.MatrixFromArray([uresp[1]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
+
+      assert.strictEqual(format(res.root), format(expected.root));
+      assert.strictEqual(format(res.f_root), format(expected.f_root));
+      assert.strictEqual(format(res.iter), format(expected.iter));
+      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mRange.delete();
+      res.theta.delete();
+      res.info.delete();
+      res.sem.delete();
+    });
+
+    it('wleEst(uresp, params, range, "BRM")', function () {
+      const expected = {
+        theta: [0.02317778, -2.28681109],
+        info: [3.341271, 0.1233062],
+        sem: [0.5543441, 3.5023960]
+      };
+
+      const mResp = new catirtlib.MatrixFromArray(uresp);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
+
+      assert.strictEqual(format(res.root), format(expected.root));
+      assert.strictEqual(format(res.f_root), format(expected.f_root));
+      assert.strictEqual(format(res.iter), format(expected.iter));
+      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mRange.delete();
+      res.theta.delete();
+      res.info.delete();
+      res.sem.delete();
+    });
+  });
 });

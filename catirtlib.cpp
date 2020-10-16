@@ -471,6 +471,96 @@ Uniroot_Result uniroot_lder1(
     return result;
 }
 
+struct Est_Result
+{
+    ArrayXd theta;
+    ArrayXd info;
+    ArrayXd sem;
+
+    Est_Result() {}
+
+    Est_Result(const Est_Result &r)
+    {
+        // allows Eigen optimizations not available with default copy constructor
+        theta = r.theta;
+        info = r.info;
+        sem = r.sem;
+    }
+};
+
+/**
+ * Estimate ability from one or more sets of item responses
+ *
+ * Port of: wleEst.R
+ *
+ * @param resp        Item responses (N people x M responses) should be size 0 for FIType::EXPECTED
+ * @param params      Parameters for M items (M x 3 matrix)
+ * @param range       Range of abilities to explore (2 x 1)
+ * @param type        ModelType::BRM or ModelType::GRM
+ *
+ * @return Est_Result with theta (Nx1), info (Nx1), and sem (Nx1) info
+ */
+const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayX3d>& params, const Ref<const RowVector2d>& range, ModelType type )
+{
+  //
+  // Check arguments
+  //
+
+  // Make sure all responses are numeric
+  if (!resp.isFinite().all()) {
+      throw "wleEst infinite or non-numeric responses provided";
+  }
+
+  // Make sure all item parameters are numeric
+  if (!params.isFinite().all()) {
+      throw "wleEst infinite or non-numeric item parameters provided";
+  }
+
+  // Make sure dimensions of resp and params are compatible
+  if (resp.cols() != params.rows()) {
+      throw "wleEst dimension mismatch between responses and parameters";
+  }
+
+  // Make sure range is from negative to positive
+  if (!(range(0) < 0 && range(1) > 0)) {
+      throw "wleEst unsupported range provided";
+  }
+
+  ArrayXd est(resp.rows()); // vector of estimates
+  ArrayXd d(resp.rows());   // vector of corrections
+  Uniroot_Result ur_result;
+  FI_Result fi_result;
+  Est_Result result;
+  const ArrayXd(*lderFunc)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayX3d>&, LderType);
+
+  if (type == ModelType::GRM) {
+      throw "wleEst ModelType::GRM not yet supported";
+  } else {
+      lderFunc = &lder1_brm;
+  }
+
+  for (int i = 0; i < resp.rows(); i++) {
+      ur_result = uniroot_lder1(lderFunc, range, resp.row(i), params, LderType::WLE);
+      est(i) = ur_result.root;
+      d(i) = ((*lderFunc)(resp.row(i), est.row(i), params, LderType::WLE) - (*lderFunc)(resp.row(i), est.row(i), params, LderType::MLE))(0);
+  }
+
+  // ensure results are capped to range
+  est = est.min(range(1)).max(range(0));
+
+  if (type == ModelType::BRM) {
+      fi_result = FI_brm(params, est, FIType::OBSERVED, resp);
+  } else {
+      //fi_result = FI_grm(params, est, FIType::OBSERVED, resp);
+  }
+
+  result.theta = est;
+  result.info = fi_result.test;
+  result.sem = ((result.info + d.square()) / result.info.square()).sqrt();
+
+  return result;
+}
+
 /*******************************************
  *
  * Begin JavaScript Bridge
@@ -631,6 +721,28 @@ Uniroot_Result embind_uniroot_lder1(const JSMatrix *range, const JSMatrix *resp,
     return uniroot_lder1(lderFP, RowVector2d(range->toEigen()), resp->toEigen(), params->toEigen(), type);
 }
 
+// wraps Est_Result Array properties into Vectors
+struct JSEst_Result
+{
+    Vector theta;
+    Vector info;
+    Vector sem;
+
+    JSEst_Result() {}
+
+    JSEst_Result(const Est_Result &r)
+    {
+        theta = VectorFromMatrix(r.theta);
+        info = VectorFromMatrix(r.info);
+        sem = VectorFromMatrix(r.sem);
+    }
+};
+
+JSEst_Result embind_wleEst(const JSMatrix *resp, const JSMatrix *params, const JSMatrix *range, ModelType type)
+{
+  return JSEst_Result(wleEst(resp->toEigen(), params->toEigen(), range->toEigen(), type));
+}
+
 EMSCRIPTEN_BINDINGS(Module)
 {
     register_vector<double>("Vector");
@@ -665,6 +777,12 @@ EMSCRIPTEN_BINDINGS(Module)
         .field("estim_prec", &Uniroot_Result::estim_prec)
         ;
 
+    value_object<JSEst_Result>("Est_Result")
+        .field("theta", &JSEst_Result::theta)
+        .field("info", &JSEst_Result::info)
+        .field("sem", &JSEst_Result::sem)
+        ;
+
     class_<JSMatrix>("Matrix")
         .constructor<int, int>()
         .constructor<const JSMatrix&>()
@@ -682,6 +800,7 @@ EMSCRIPTEN_BINDINGS(Module)
     function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
     function("FI_brm", &embind_FI_brm, allow_raw_pointers());
     function("uniroot_lder1", &embind_uniroot_lder1, allow_raw_pointers());
+    function("wleEst", &embind_wleEst, allow_raw_pointers());
 }
 
 /*******************************************
