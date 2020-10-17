@@ -1,5 +1,5 @@
 'use strict';
-const createCatIrtLib = require('../dist/catirtlib');
+const create_catirtlib = require('../dist/catirtlib');
 const mathjs = require('mathjs');
 const assert = require('assert').strict;
 let catirtlib = {};
@@ -36,7 +36,7 @@ describe('catIrt webasm', function () {
 
   // load wasm (asynchronous)
   before('loading catirtlib wasm module', function(done) {
-    createCatIrtLib().then(function(Module) {
+    create_catirtlib().then(function(Module) {
       catirtlib = Module;
       done();
     });
@@ -358,6 +358,62 @@ describe('catIrt webasm', function () {
       res.theta.delete();
       res.info.delete();
       res.sem.delete();
+    });
+  });
+
+  describe('wleEst_brm_one:', function () {
+    it('wleEst_brm_one(uresp[0], params, range)', function () {
+      const expected = {
+        theta: 0.02317778,
+        info: 3.341271,
+        sem: 0.5543441
+      };
+      const res = catirtlib.wleEst_brm_one(uresp[0], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid response: non-array or empty', function () {
+      const expected = {
+        error: 'response must be a non-empty array'
+      };
+
+      let res = catirtlib.wleEst_brm_one([], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.wleEst_brm_one({}, itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid response: non-numeric/non-finite response element', function () {
+      const expected = {
+        error: 'response has non-numeric or non-finite elements'
+      };
+
+      let res = catirtlib.wleEst_brm_one([1, 2, NaN, 4, 5], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.wleEst_brm_one([1, [], {}, 'testo', 5], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid params: non-array or empty', function () {
+      const expected = {
+        error: 'params must be a non-empty array'
+      };
+
+      let res = catirtlib.wleEst_brm_one(uresp[0], [], range);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.wleEst_brm_one(uresp[0], {}, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid params: response/params length mismatch', function () {
+      const expected = {
+        error: 'length of response must match length of params'
+      };
+      const res = catirtlib.wleEst_brm_one(uresp[0], itemparams.slice(1, 2), range);
+      assert.strictEqual(format(res), format(expected));
     });
   });
 });
