@@ -448,10 +448,7 @@ describe('catIrt webasm', function () {
   describe('itChoose:', function () {
     it('itChoose(items, "brm", "UW-FI", "theta", {cat_theta=0.0})', function () {
       const expected = {
-        items: [{id: 'item2', params: [3.02, -0.38, 0.12], info: 1.41394}],
-        params: [[3.02, -0.38, 0.12]],
-        info: [1.41394],
-        type: 'UW-FI'
+        items: [{id: 'item2', params: [3.02, -0.38, 0.12], info: 1.41394}]
       };
       const res = catirtlib.itChoose(items, 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
       assert.strictEqual(format(res), format(expected));

@@ -289,10 +289,5 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
 
   return {
     items: selected_items,
-
-    // properties below for compatibility with ported R function
-    params: selected_items.map(item => item.params),
-    info: selected_items.map(item => item.info),
-    type: select
   }
 };
