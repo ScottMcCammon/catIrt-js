@@ -51,7 +51,7 @@ Module['wleEst_brm_one'] = function(resp, params, range=[-4.5, 4.5]) {
     };
   }
   for (let i = 0; i < resp.length; i++) {
-    if (!((typeof resp[i] === 'number') && isFinite(resp[i]))) {
+    if (!((typeof resp[i] === 'number') && Number.isFinite(resp[i]))) {
       return {
         error: 'response has non-numeric or non-finite elements'
       };
