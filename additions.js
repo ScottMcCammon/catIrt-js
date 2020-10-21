@@ -78,3 +78,41 @@ Module['wleEst_brm_one'] = function(resp, params, range=[-4.5, 4.5]) {
 
   return result;
 };
+
+Module['FI_brm_expected_one'] = function(params, theta) {
+  if (!(Array.isArray(params) && params.length)) {
+    return {
+      error: 'params must be a non-empty array'
+    };
+  }
+  if (!Number.isFinite(theta)) {
+    return {
+      error: 'theta must be a finite number'
+    };
+  }
+
+  const result = {
+    item: []
+  };
+
+  const mParams = Module.MatrixFromArray(params);
+  const mTheta = Module.MatrixFromArray([[theta]]);
+  const mResp = new Module.Matrix(0, 0);
+  const res = Module.FI_brm(mParams, mTheta, Module.FIType.EXPECTED, mResp);
+
+  for (let i = 0; i < res.item.cols(); i++) {
+    result.item.push(res.item.get(0, i));
+  }
+  result.test = res.test.get(0);
+  result.sem = res.sem.get(0);
+
+  // wasm heap cleanup
+  mParams.delete();
+  mTheta.delete();
+  mResp.delete();
+  res.item.delete();
+  res.test.delete();
+  res.sem.delete();
+
+  return result;
+};

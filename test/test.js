@@ -416,4 +416,40 @@ describe('catIrt webasm', function () {
       assert.strictEqual(format(res), format(expected));
     });
   });
+
+  describe('FI_brm_expected_one:', function () {
+    it('FI_brm_expected_one(params, theta[0])', function () {
+      const expected = {
+        item: [0.4144132, 0.15081586, 0.1230584, 0.02053748, 0.02596604],
+        test: 0.734791,
+        sem: 1.1665896
+      };
+      const res = catirtlib.FI_brm_expected_one(itemparams, theta[0]);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid params: non-array or empty', function () {
+      const expected = {
+        error: 'params must be a non-empty array'
+      };
+
+      let res = catirtlib.FI_brm_expected_one([], theta[0]);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.FI_brm_expected_one({}, theta[0]);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid theta: non-finite / non-numeric', function () {
+      const expected = {
+        error: 'theta must be a finite number'
+      };
+
+      let res = catirtlib.FI_brm_expected_one(itemparams, null);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.FI_brm_expected_one(itemparams, [1.7]);
+      assert.strictEqual(format(res), format(expected));
+    });
+  });
 });
