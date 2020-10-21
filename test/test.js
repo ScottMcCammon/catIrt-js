@@ -453,5 +453,33 @@ describe('catIrt webasm', function () {
       const res = catirtlib.itChoose(items, 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
       assert.strictEqual(format(res), format(expected));
     });
+
+    it('invalid items: non-array or empty', function () {
+      const expected = {
+        error: '"from_items" must be a non-empty array'
+      };
+      let res = catirtlib.itChoose([], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.itChoose({}, 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid items: missing or incorrect params', function () {
+      const expected = {
+        error: '"from_items" entries must be objects with params array of length 3'
+      };
+      let res = catirtlib.itChoose([[1,2,3]], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.itChoose([{}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.itChoose([{params:[]}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.itChoose([{params:[1, 2, 3, 4]}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+    });
   });
 });

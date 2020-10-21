@@ -175,6 +175,11 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
       error: `"from_items" must be a non-empty array`
     };
   }
+  if (!(typeof from_items[0] === 'object' && Array.isArray(from_items[0].params) && from_items[0].params.length === 3)) {
+    return {
+      error: `"from_items" entries must be objects with params array of length 3`
+    };
+  }
 
   // validate model
   if (!(model === 'brm')) {
