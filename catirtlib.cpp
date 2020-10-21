@@ -23,7 +23,7 @@ using namespace Eigen;
 using Vector = std::vector<double>;
 
 /**
- * Generate the item probability matrix for person(s) with given ability estimates
+ * Generate the BRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: p.brm.R
  *
@@ -61,7 +61,52 @@ const ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>&
 }
 
 /**
- * Derivative of the item probability matrix for person(s) with given ability estimates
+ * Generate the item GRM probability matrix for person(s) with given ability estimates
+ *
+ * Port of: p.grm.R
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return person/item probability matrix ((N*K) x M) for N people, K categories, and M items
+ */
+const ArrayXXd p_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+{
+  int n_ppl, n_it, n_cat;   // for person, item, and category counts
+  int i, j, k;              // for the loop iteration
+  double p_exp;             // for the exponent of the dimension probability
+  double p;                 // for the GRM probability of correct
+  ArrayXXd P;               // for the probability results
+
+  // get dimensions of theta and params
+  n_ppl = theta.rows();
+  n_it  = params.rows();
+  n_cat = params.cols();
+
+  // resize results
+  P.resize(n_ppl * n_cat, n_it);
+
+  // calculate probability of within categories
+  // Note (IMPORTANT) - it fills in by COLUMNS, just like the default in R:
+  for ( i = 0; i < n_ppl; i++ ) {
+    for ( j = 0; j < n_it; j++ ) {
+      P((i * n_cat + 0), j) = 1;
+
+      for ( k = 0; k < n_cat - 1; k++ ) {
+        p_exp = exp( -params(j, 0) * (theta(i) - params(j, k + 1)) );
+        p     = 1 / ( 1 + p_exp );
+
+        P((i * n_cat + k + 1), j) = p;
+        P((i * n_cat + k), j)    -= p;
+      }
+    }
+  }
+
+  return P;
+}
+
+/**
+ * Derivative of the BRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: pder1.brm.R
  *
@@ -101,7 +146,53 @@ const ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
 }
 
 /**
- * 2nd derivative of the item probability matrix for person(s) with given ability estimates
+ * Derivative of the GRM item probability matrix for person(s) with given ability estimates
+ *
+ * Port of: pder1.grm.R
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return person/item derivative probability matrix ((N*K) x M) for N people, K categories, and M items
+ */
+const ArrayXXd pder1_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+{
+  int n_ppl, n_it, n_cat;   // for person, item, and category counts
+  int i, j, k;              // for the loop iteration
+  double p_exp;             // for the exponent of the dimension probability
+  double p, p_der1;         // for the GRM probability of correct
+  ArrayXXd Pd1;             // for probability derivative results
+
+  // get dimensions of theta and params
+  n_ppl = theta.rows();
+  n_it  = params.rows();
+  n_cat = params.cols();
+
+  // resize results
+  Pd1.resize((n_ppl * n_cat), n_it);
+
+  // calculate derivative of probability of within categories
+  // Note (IMPORTANT) - it fills in by COLUMNS, just like the default in R:
+  for ( i = 0; i < n_ppl; i++ ) {
+    for ( j = 0; j < n_it; j++ ) {
+      Pd1((i * n_cat + 0), j) = 0;
+
+      for ( k = 0; k < n_cat - 1; k++ ) {
+        p_exp  = exp( -params(j, 0) * (theta(i) - params(j, k + 1)) );
+        p      = 1 / ( 1 + p_exp );
+        p_der1 = params(j, 0) * p * ( 1 - p );
+
+        Pd1((i * n_cat + k + 1), j) = p_der1;
+        Pd1((i * n_cat + k), j)    -= p_der1;
+      }
+    }
+  }
+
+  return Pd1;
+}
+
+/**
+ * 2nd derivative of the BRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: pder2.brm.R
  *
@@ -136,6 +227,53 @@ const ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
       p_der1 = ( 1 - params(j, 2) ) * params(j, 0) * p * ( 1 - p );
 
       Pd2(i, j) = params(j, 0) * ( 1 - p_exp ) * ( 1 - p ) * p_der1;
+    }
+  }
+
+  return Pd2;
+}
+
+/**
+ * 2nd derivative of the GRM item probability matrix for person(s) with given ability estimates
+ *
+ * Port of: pder2.grm.R
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return person/item 2nd derivative probability matrix ((N*K) x M) for N people, K categories, and M items
+ */
+const ArrayXXd pder2_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+{
+  int n_ppl, n_it, n_cat;   // for person, item, and category counts
+  int i, j, k;              // for the loop iteration
+  double p_exp;             // for the exponent of the dimension probability
+  double p, p_der1, p_der2; // for the GRM probability of correct
+  ArrayXXd Pd2;             // for probability derivative results
+
+  // get dimensions of theta and params
+  n_ppl = theta.rows();
+  n_it  = params.rows();
+  n_cat = params.cols();
+
+  // resize results
+  Pd2.resize((n_ppl * n_cat), n_it);
+
+  // calculate 2nd derivative of probability of within categories
+  // Note (IMPORTANT) - it fills in by COLUMNS, just like the default in R:
+  for ( i = 0; i < n_ppl; i++ ) {
+    for ( j = 0; j < n_it; j++ ) {
+      Pd2((i * n_cat + 0), j) = 0;
+
+      for ( k = 0; k < n_cat - 1; k++ ) {
+        p_exp  = exp( params(j, 0) * (theta(i) - params(j, k + 1)) );
+        p      = p_exp / ( 1 + p_exp );
+        p_der1 = params(j, 0) * p * ( 1 - p );
+        p_der2 = params(j, 0) * (1 - p_exp) * (1 - p) * p_der1;
+
+        Pd2((i * n_cat + k + 1), j) = p_der2;
+        Pd2((i * n_cat + k), j)    -= p_der2;
+      }
     }
   }
 
@@ -656,14 +794,29 @@ const JSMatrix embind_p_brm(const JSMatrix *theta, const JSMatrix *params)
   return JSMatrix(p_brm(theta->toEigen(), params->toEigen()));
 }
 
+const JSMatrix embind_p_grm(const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(p_grm(theta->toEigen(), params->toEigen()));
+}
+
 const JSMatrix embind_pder1_brm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(pder1_brm(theta->toEigen(), params->toEigen()));
 }
 
+const JSMatrix embind_pder1_grm(const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(pder1_grm(theta->toEigen(), params->toEigen()));
+}
+
 const JSMatrix embind_pder2_brm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(pder2_brm(theta->toEigen(), params->toEigen()));
+}
+
+const JSMatrix embind_pder2_grm(const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(pder2_grm(theta->toEigen(), params->toEigen()));
 }
 
 const Vector embind_lder1_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
@@ -794,8 +947,11 @@ EMSCRIPTEN_BINDINGS(Module)
         ;
 
     function("p_brm", &embind_p_brm, allow_raw_pointers());
+    function("p_grm", &embind_p_grm, allow_raw_pointers());
     function("pder1_brm", &embind_pder1_brm, allow_raw_pointers());
+    function("pder1_grm", &embind_pder1_grm, allow_raw_pointers());
     function("pder2_brm", &embind_pder2_brm, allow_raw_pointers());
+    function("pder2_grm", &embind_pder2_grm, allow_raw_pointers());
     function("lder1_brm", &embind_lder1_brm, allow_raw_pointers());
     function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
     function("FI_brm", &embind_FI_brm, allow_raw_pointers());

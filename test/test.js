@@ -56,6 +56,31 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('p_grm:', function () {
+    it('p_grm(theta, params)', function () {
+      // expected values from R equivalent: `catIrt::p.grm(theta, params)`
+      const expected = [
+        [0.289256041, 0.941497379, 0.90720705,  0.97132401,  0.95210207],
+        [0.611083234, 0.044961626, 0.02970148, -0.02224582, -0.06104348],
+        [0.099660725, 0.013540995, 0.06309147,  0.05092180,  0.10894141],
+        [0.007181782, 0.006220902, 0.06537533,  0.13783373,  0.29767374],
+        [0.131175662, 0.021334889, 0.03066643, -0.05697974, -0.14917190],
+        [0.861642555, 0.972444209, 0.90395823,  0.91914601,  0.85149816]
+      ];
+
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.p_grm(mTheta, mParams);
+
+      assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+  });
+
   describe('pder1_brm:', function () {
     it('pder1_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder1.brm(theta, params)`
@@ -77,6 +102,31 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('pder1_grm:', function () {
+    it('pder1_grm(theta, params)', function () {
+      // expected values from R equivalent: `catIrt::pder1.grm(theta, params)`
+      const expected = [
+        [-0.31865982, -0.16634180, -0.15994660, -0.05737857, -0.0674935],
+        [ 0.17958070,  0.12600173,  0.04763581, -0.04217870, -0.0761748],
+        [ 0.13907912,  0.04034006,  0.11231079,  0.09955727,  0.1436683],
+        [-0.01105182, -0.01867025, -0.11609266, -0.24480133, -0.3094148],
+        [-0.17373091, -0.06225509, -0.04886106,  0.09170908,  0.1222703],
+        [ 0.18478273,  0.08092534,  0.16495372,  0.15309225,  0.1871446]
+      ];
+
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.pder1_grm(mTheta, mParams);
+
+      assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+  });
+
   describe('pder2_brm:', function () {
     it('pder2_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder2.brm(theta, params)`
@@ -88,6 +138,31 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
       const res = catirtlib.pder2_brm(mTheta, mParams);
+
+      assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+  });
+
+  describe('pder2_grm:', function () {
+    it('pder2_grm(theta, params)', function () {
+      // expected values from R equivalent: `catIrt::pder2.grm(theta, params)`
+      const expected = [
+        [ 0.20818246, -0.44357438, -0.24749925, -0.11142086, -0.090321296],
+        [-0.38078685,  0.32504671,  0.06103500, -0.07278022, -0.075979567],
+        [ 0.17260439,  0.11852767,  0.18646425,  0.18420108,  0.166300863],
+        [ 0.01688426,  0.05568264,  0.19173559,  0.36527418,  0.185304135],
+        [ 0.19027416,  0.17524291,  0.06147518, -0.10090201,  0.009407556],
+        [-0.20715842, -0.23092555, -0.25321076, -0.26437218, -0.194711691]
+      ];
+
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.pder2_grm(mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
