@@ -17,22 +17,14 @@ describe('catIrt webasm', function () {
       [1, 1, 1, 0, 0],
       [0, 0, 1, 0, 1]
   ];
-  const itemparams = [
-      [1.55,-1.88,0.12],
-      [3.02,-0.38,0.12],
-      [1.9,-0.1,0.12],
-      [2.06,0.41,0.12],
-      [1.48,0.72,0.12]
+  const items = [
+    {id: 'item1', params: [1.55,-1.88,0.12]},
+    {id: 'item2', params: [3.02,-0.38,0.12]},
+    {id: 'item3', params: [1.9,-0.1,0.12]},
+    {id: 'item4', params: [2.06,0.41,0.12]},
+    {id: 'item5', params: [1.48,0.72,0.12]}
   ];
-  const nitems = itemparams.length;
-  let flatparams = [];
-  for (let i = 0; i < nitems; i++) {
-    flatparams = flatparams.concat(itemparams[i]);
-  }
-  let flaturesp = [];
-  for (let i = 0; i < uresp.length; i++) {
-    flaturesp = flaturesp.concat(uresp[i]);
-  }
+  const itemparams = items.map(item => item.params);
 
   // load wasm (asynchronous)
   before('loading catirtlib wasm module', function(done) {
@@ -449,6 +441,19 @@ describe('catIrt webasm', function () {
       assert.strictEqual(format(res), format(expected));
 
       res = catirtlib.FI_brm_expected_one(itemparams, [1.7]);
+      assert.strictEqual(format(res), format(expected));
+    });
+  });
+
+  describe('itChoose:', function () {
+    it('itChoose(items, "brm", "UW-FI", "theta", {cat_theta=0.0})', function () {
+      const expected = {
+        items: [{id: 'item2', params: [3.02, -0.38, 0.12], info: 1.41394}],
+        params: [[3.02, -0.38, 0.12]],
+        info: [1.41394],
+        type: 'UW-FI'
+      };
+      const res = catirtlib.itChoose(items, 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
       assert.strictEqual(format(res), format(expected));
     });
   });

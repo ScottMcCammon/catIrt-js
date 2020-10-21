@@ -116,3 +116,183 @@ Module['FI_brm_expected_one'] = function(params, theta) {
 
   return result;
 };
+
+// add deep copy to objects and arrays
+if (typeof Object.prototype.deepcopy === 'undefined') {
+  Object.defineProperty(Object.prototype, 'deepcopy', {
+    value: function() {
+      function deepcopy(obj) {
+        if (typeof obj !== 'object' || obj === null) {
+          return obj;
+        }
+        const copy = Array.isArray(obj) ? [] : {};
+        for (key in obj) {
+          copy[key] = deepcopy(obj[key]);
+        }
+        return copy;
+      }
+      return deepcopy(this);
+    }
+  });
+}
+
+// add Fisher-Yates shuffle to arrays
+if (typeof Array.prototype.shuffle === 'undefined') {
+  Object.defineProperty(Array.prototype, 'shuffle', {
+    value: function() {
+      for (let i = this.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this[i], this[j]] = [this[j], this[i]];
+      }
+      return this;
+    }
+  });
+}
+
+Module['itChoose'] = function(from_items, model, select, at, options={}) {
+  const defaults = {
+    numb: 1,
+    n_select: 1,
+    cat_par: null,
+    cat_resp: null,
+    cat_theta: null,
+    range: null,
+    it_range: null,
+    delta: null,
+    bounds: null,
+    ddist: null,
+    quad: null
+  };
+  options = Object.assign({}, defaults, options);
+
+  //
+  // Argument checks
+  //
+
+  // validate from_items
+  if (!(Array.isArray(from_items) && from_items.length > 0)) {
+    return {
+      error: `"from_items" must be a non-empty array`
+    };
+  }
+
+  // validate model
+  if (!(model === 'brm')) {
+    return {
+      error: `Invalid or unsupported "model" provided: "${model}"`
+    };
+  }
+
+  // validate select
+  if (!(select === 'UW-FI')) {
+    return {
+      error: `Invalid or unsupported "select" provided: "${select}"`
+    };
+  }
+
+  // validate at
+  if (!(at === 'theta')) {
+    return {
+      error: `Invalid or unsupported "at" provided: "${at}"`
+    };
+  }
+
+  // validate options
+  if (!(Number.isFinite(options.numb) && options.numb > 0 && Math.floor(options.numb) === options.numb)) {
+    return {
+      error: `"numb" must be be an integer greater than 0`
+    };
+  }
+  if (!(Number.isFinite(options.n_select) && options.n_select > 0 && Math.floor(options.n_select) === options.n_select)) {
+    return {
+      error: `"n_select" must be be an integer greater than 0`
+    };
+  }
+  if (!(options.cat_par === null)) {
+    return {
+      error: `non-null "cat_par" not used`
+    };
+  }
+  if (!(options.cat_resp === null)) {
+    return {
+      error: `non-null "cat_resp" not used`
+    };
+  }
+  if (!(options.cat_theta === null || Number.isFinite(options.cat_theta))) {
+    return {
+      error: `non-null "cat_resp" not used`
+    };
+  }
+  if (!(options.range === null)) {
+    return {
+      error: `"range" not used`
+    };
+  }
+  if (!(options.it_range === null)) {
+    return {
+      error: `"it_range" not supported`
+    };
+  }
+  if (!(options.delta === null)) {
+    return {
+      error: `non-null "delta" not used`
+    };
+  }
+  if (!(options.bounds === null)) {
+    return {
+      error: `non-null "bounds" not used`
+    };
+  }
+  if (!(options.ddist === null)) {
+    return {
+      error: `non-null "ddist" not used`
+    };
+  }
+  if (!(options.quad === null)) {
+    return {
+      error: `non-null "quad" not used`
+    };
+  }
+
+  //
+  // Calculate item info
+  //
+
+  // create copy of items for safe modifications
+  from_items = from_items.deepcopy();
+
+  const theta = (options.cat_theta || 0);
+
+  if (select === 'UW-FI') {
+    if (model === 'brm') {
+      item_info = Module.FI_brm_expected_one(from_items.map(item => item.params), theta)['item'];
+    }
+    else {
+      item_info = Module.FI_grm_expected_one(from_items.map(item => item.params), theta)['item'];
+    }
+  }
+
+  // add info to item collection
+  item_info.forEach((info, i) => {
+    from_items[i].info = info;
+  });
+
+
+  //
+  // Sort and choose items
+  //
+
+  // sort and select random sample from top N items
+  from_items.sort((a, b) => b.info - a.info);
+  from_items = from_items.slice(0, options.n_select);
+  const selected_items = from_items.shuffle().slice(0, options.numb);
+
+  return {
+    items: selected_items,
+
+    // properties below for compatibility with ported R function
+    params: selected_items.map(item => item.params),
+    info: selected_items.map(item => item.info),
+    type: select
+  }
+};
