@@ -298,13 +298,22 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
 };
 
 Module['getAnswers'] = function(resp) {
+  if (!Array.isArray(resp)) {
+    return [];
+  }
   return resp.filter(r => Number.isFinite(r));
 }
 
 Module['getAnsweredItems'] = function(items, resp) {
+  if (!Array.isArray(resp) || !Array.isArray(items) || items.length !== resp.length) {
+    return [];
+  }
   return items.filter((val, i) => Number.isFinite(resp[i]));
 }
 
 Module['getUnansweredItems'] = function(items, resp) {
+  if (!Array.isArray(resp) || !Array.isArray(items) || items.length !== resp.length) {
+    return [];
+  }
   return items.filter((val, i) => !Number.isFinite(resp[i]));
 }
