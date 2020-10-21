@@ -296,3 +296,15 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
     items: selected_items,
   }
 };
+
+Module['getAnswers'] = function(resp) {
+  return resp.filter(r => Number.isFinite(r));
+}
+
+Module['getAnsweredItems'] = function(items, resp) {
+  return items.filter((val, i) => Number.isFinite(resp[i]));
+}
+
+Module['getUnansweredItems'] = function(items, resp) {
+  return items.filter((val, i) => !Number.isFinite(resp[i]));
+}
