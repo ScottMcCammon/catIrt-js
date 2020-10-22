@@ -276,6 +276,29 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('lder2_grm:', function () {
+    it('lder2_grm(u, theta, params)', function () {
+      // expected values from R equivalent: `catIrt::lder2.grm(u, theta, params)`
+      const expected = [
+        [-0.4939227, -0.62417921, -0.3038985, -0.205088, -0.09989038],
+        [-0.3035435, -0.05638416, -0.3134121, -0.315370, -0.73490795]
+      ];
+
+      const mResp = catirtlib.MatrixFromArray(uresp_grm);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.lder2_grm(mResp, mTheta, mParams);
+
+      assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+  });
+
   describe('FI_brm:', function () {
     it('FI_brm(params, theta, "EXPECTED")', function () {
       const expected = {

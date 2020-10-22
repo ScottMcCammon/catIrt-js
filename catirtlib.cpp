@@ -443,6 +443,34 @@ const ArrayXXd lder2_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>
   return ((u * lder2_1) - ((1 - u) * lder2_2));
 }
 
+/**
+ * 2nd derivative of log-likelihoods of reponses to items at given ability estimates
+ *
+ * Port of: lder2.grm.R
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return 2nd derivative of log-likelihood for each person - vector (N x M)
+ */
+const ArrayXXd lder2_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params )
+{
+  int K = params.cols();
+
+  // Calculating the probability of response:
+  ArrayXXd p = p_grm(theta, params);
+
+  // Calculating the first and second derivatives:
+  ArrayXXd pder1 = pder1_grm(theta, params);
+  ArrayXXd pder2 = pder2_grm(theta, params);
+
+  // Calculating two parts of second derivative:
+  ArrayXXd lder2 = ( -1 * pder1.square() / p.square() ) + ( pder2 / p );
+
+  return sel_prm(lder2, u, K);
+}
+
 struct FI_Result
 {
     ArrayXXd item;
@@ -927,6 +955,11 @@ const JSMatrix embind_lder2_brm(const JSMatrix *u, const JSMatrix *theta, const 
   return JSMatrix(lder2_brm(u->toEigen(), theta->toEigen(), params->toEigen()));
 }
 
+const JSMatrix embind_lder2_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
+{
+  return JSMatrix(lder2_grm(u->toEigen(), theta->toEigen(), params->toEigen()));
+}
+
 // wraps FI_Result Array properties into JSMatrix
 struct JSFI_Result
 {
@@ -1054,6 +1087,7 @@ EMSCRIPTEN_BINDINGS(Module)
     function("sel_prm", &embind_sel_prm, allow_raw_pointers());
     function("lder1_grm", &embind_lder1_grm, allow_raw_pointers());
     function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
+    function("lder2_grm", &embind_lder2_grm, allow_raw_pointers());
     function("FI_brm", &embind_FI_brm, allow_raw_pointers());
     function("uniroot_lder1", &embind_uniroot_lder1, allow_raw_pointers());
     function("wleEst", &embind_wleEst, allow_raw_pointers());
