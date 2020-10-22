@@ -1,6 +1,7 @@
 #include <Eigen/Core>
 #include <emscripten/bind.h>
-#include <float.h>
+#include <cfloat>
+#include <cmath>
 
 enum class LderType {
     MLE,
@@ -70,7 +71,7 @@ const ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>&
  *
  * @return person/item probability matrix ((N*K) x M) for N people, K categories, and M items
  */
-const ArrayXXd p_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd p_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params)
 {
   int n_ppl, n_it, n_cat;   // for person, item, and category counts
   int i, j, k;              // for the loop iteration
@@ -155,7 +156,7 @@ const ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
  *
  * @return person/item derivative probability matrix ((N*K) x M) for N people, K categories, and M items
  */
-const ArrayXXd pder1_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd pder1_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params)
 {
   int n_ppl, n_it, n_cat;   // for person, item, and category counts
   int i, j, k;              // for the loop iteration
@@ -243,7 +244,7 @@ const ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
  *
  * @return person/item 2nd derivative probability matrix ((N*K) x M) for N people, K categories, and M items
  */
-const ArrayXXd pder2_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd pder2_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params)
 {
   int n_ppl, n_it, n_cat;   // for person, item, and category counts
   int i, j, k;              // for the loop iteration
@@ -321,6 +322,93 @@ const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>&
     }
 
     lder1 += H;
+  }
+
+  // Return Vector of logLik's
+  return lder1.rowwise().sum();
+}
+
+/**
+ * Select item/category values based on response vectors
+ *
+ * Port of: sel.prm in ExtractOperators.R
+ *
+ * @param p ((N*K) x J) value matrix
+ * @param u Item responses (N people x J responses)
+ * @param K number of categories
+ *
+ * @return (N x J) matrix - vector of item values for each person
+ */
+const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>& u, int K ) {
+  int N = u.rows();
+  int J = p.cols();
+  int cat;
+  ArrayXXd lik(N, J);
+
+  if ((u.cols() != p.cols()) || ((u.rows() * K) != p.rows())) {
+    throw "sel_prm dimension mismatch between p, u, and K";
+  }
+
+  for (int i = 0; i < N; i++) {
+    for (int j = 0; j < J; j++) {
+      if (isnan(u(i, j))) {
+        cat = -1;
+      } else {
+        cat = static_cast<int>(u(i, j));
+      }
+      if (cat > 0 && cat <= K) {
+        lik(i, j) = p.block(i * K, 0, K, J)(cat - 1, j);
+      } else {
+        lik(i, j) = nan("");
+      }
+    }
+  }
+  return lik;
+}
+
+/**
+ * Derivative of log-likelihoods of reponses to items at given ability estimates
+ *
+ * Port of: lder1.grm.R
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ * @param ltype       LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)
+ *
+ * @return derivative of log-likelihood for each person - vector (N x 1)
+ */
+const ArrayXd lder1_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LderType ltype )
+{
+  // u is the response, theta is ability, and params are the parameters.
+  int N = theta.rows();
+  int J = params.rows();
+  int K = params.cols();
+
+  // Calculating the probability of response:
+  ArrayXXd p = p_grm(theta, params);
+
+  // Calculating the first and second derivatives:
+  ArrayXXd pder1 = pder1_grm(theta, params);
+  ArrayXXd pder2 = pder2_grm(theta, params);
+
+  // Calculating lder1 for normal/Warm:
+  ArrayXXd lder1 = sel_prm(pder1 / p, u, K);
+
+  // Apply Warm correction:
+  if ( ltype == LderType::WLE ) {
+    ArrayXXd Itmp = pder1.square() / p;
+    ArrayXXd Htmp = ( pder1 * pder2 ) / p;
+    ArrayXd I(N);
+    ArrayXd H(N);
+
+    // sum all values for each person
+    for (int i = 0; i < N; i++) {
+        I(i) = Itmp.block(i * K, 0, K, J).sum();
+        H(i) = Htmp.block(i * K, 0, K, J).sum();
+    }
+
+    lder1.colwise() += (H / (2 * I) / J);
   }
 
   // Return Vector of logLik's
@@ -824,6 +912,16 @@ const Vector embind_lder1_brm(const JSMatrix *u, const JSMatrix *theta, const JS
   return VectorFromMatrix(lder1_brm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
 }
 
+const Vector embind_lder1_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
+{
+  return VectorFromMatrix(lder1_grm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
+}
+
+const JSMatrix embind_sel_prm(const JSMatrix *p, const JSMatrix *u, int K)
+{
+  return JSMatrix(sel_prm(p->toEigen(), u->toEigen(), K));
+}
+
 const JSMatrix embind_lder2_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(lder2_brm(u->toEigen(), theta->toEigen(), params->toEigen()));
@@ -953,6 +1051,8 @@ EMSCRIPTEN_BINDINGS(Module)
     function("pder2_brm", &embind_pder2_brm, allow_raw_pointers());
     function("pder2_grm", &embind_pder2_grm, allow_raw_pointers());
     function("lder1_brm", &embind_lder1_brm, allow_raw_pointers());
+    function("sel_prm", &embind_sel_prm, allow_raw_pointers());
+    function("lder1_grm", &embind_lder1_grm, allow_raw_pointers());
     function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
     function("FI_brm", &embind_FI_brm, allow_raw_pointers());
     function("uniroot_lder1", &embind_uniroot_lder1, allow_raw_pointers());

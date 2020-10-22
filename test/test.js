@@ -17,6 +17,10 @@ describe('catIrt webasm', function () {
       [1, 1, 1, 0, 0],
       [0, 0, 1, 0, 1]
   ];
+  const uresp_grm = [
+      [1, 2, 1, 3, 1],
+      [2, 1, 3, 3, 2]
+  ];
   const items = [
     {id: 'item1', params: [1.55,-1.88,0.12]},
     {id: 'item2', params: [3.02,-0.38,0.12]},
@@ -200,6 +204,44 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
       const res = catirtlib.lder1_brm(mResp, mTheta, mParams, catirtlib.LderType.WLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+  });
+
+  describe('lder1_grm:', function () {
+    it('lder1_grm(u, theta, params, "MLE")', function () {
+      // expected values from R equivalent: `catIrt::lder1.grm(u, theta, params, type='MLE')`
+      const expected = [3.408681, -4.796249];
+
+      const mResp = catirtlib.MatrixFromArray(uresp_grm);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.lder1_grm(mResp, mTheta, mParams, catirtlib.LderType.MLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+
+    it('lder1_grm(u, theta, params, "WLE")', function () {
+      // expected values from R equivalent: `catIrt::lder1.grm(u, theta, params, type='WLE')`
+      const expected = [4.048207, -5.598181];
+
+      const mResp = catirtlib.MatrixFromArray(uresp_grm);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.lder1_grm(mResp, mTheta, mParams, catirtlib.LderType.WLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
