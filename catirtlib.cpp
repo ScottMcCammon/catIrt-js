@@ -293,7 +293,7 @@ const ArrayXXd pder2_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
  *
  * @return derivative of log-likelihood for each person - vector (N x 1)
  */
-const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, LderType ltype )
+const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LderType ltype )
 {
   // u is the response, theta is ability, and params are the parameters.
   int N = theta.rows();
@@ -632,7 +632,7 @@ struct Uniroot_Result
  * @param lderFP      Pointer to lder1_brm or lder1_grm functions
  * @param range       Interval to search: should be [-X,+X] for some positive X
  * @param resp        Item responses for a single person (1 x M)
- * @param params      Parameters for M items (M x 3 matrix)
+ * @param params      Parameters for M items (M x K matrix)
  * @param type        LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)
  * @param maxit       Maximum number of iterations for search (default: 1000)
  * @param tol         Acceptable tolerance level (default: EPSILON^0.25)
@@ -640,10 +640,10 @@ struct Uniroot_Result
  * @return Uniroot_Result with iter=-1 if a root did not converge within max iterations
  */
 Uniroot_Result uniroot_lder1(
-    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayX3d>&, LderType),
+    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayXXd>&, LderType),
     const Ref<const RowVector2d>& range,
     const Ref<const ArrayXXd>& resp,
-    const Ref<const ArrayX3d>& params,
+    const Ref<const ArrayXXd>& params,
     LderType type,
     int maxit = 1000,
     double tol = 0.0
@@ -811,13 +811,13 @@ struct Est_Result
  * Port of: wleEst.R
  *
  * @param resp        Item responses (N people x M responses) should be size 0 for FIType::EXPECTED
- * @param params      Parameters for M items (M x 3 matrix)
+ * @param params      Parameters for M items (M x K matrix)
  * @param range       Range of abilities to explore (2 x 1)
  * @param type        ModelType::BRM or ModelType::GRM
  *
  * @return Est_Result with theta (Nx1), info (Nx1), and sem (Nx1) info
  */
-const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayX3d>& params, const Ref<const RowVector2d>& range, ModelType type )
+const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayXXd>& params, const Ref<const RowVector2d>& range, ModelType type )
 {
   //
   // Check arguments
@@ -848,10 +848,10 @@ const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayX
   Uniroot_Result ur_result;
   FI_Result fi_result;
   Est_Result result;
-  const ArrayXd(*lderFunc)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayX3d>&, LderType);
+  const ArrayXd(*lderFunc)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayXXd>&, LderType);
 
   if (type == ModelType::GRM) {
-      throw "wleEst ModelType::GRM not yet supported";
+      lderFunc = &lder1_grm;
   } else {
       lderFunc = &lder1_brm;
   }
@@ -868,7 +868,7 @@ const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayX
   if (type == ModelType::BRM) {
       fi_result = FI_brm(params, est, FIType::OBSERVED, resp);
   } else {
-      //fi_result = FI_grm(params, est, FIType::OBSERVED, resp);
+      fi_result = FI_grm(params, est, FIType::OBSERVED, resp);
   }
 
   result.theta = est;
@@ -1062,12 +1062,12 @@ JSFI_Result embind_FI_grm(const JSMatrix *params, const JSMatrix *theta, FIType 
 
 Uniroot_Result embind_uniroot_lder1(const JSMatrix *range, const JSMatrix *resp, const JSMatrix *params, LderType type, ModelType model)
 {
-    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayX3d>&, LderType);
+    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayXXd>&, LderType);
 
     if (model == ModelType::BRM) {
         lderFP = &lder1_brm;
     } else {
-        throw "embind_uniroot_lder1 model type GRM not yet supported";
+        lderFP = &lder1_grm;
     }
 
     return uniroot_lder1(lderFP, RowVector2d(range->toEigen()), resp->toEigen(), params->toEigen(), type);

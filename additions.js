@@ -79,6 +79,51 @@ Module['wleEst_brm_one'] = function(resp, params, range=[-4.5, 4.5]) {
   return result;
 };
 
+Module['wleEst_grm_one'] = function(resp, params, range=[-4.5, 4.5]) {
+  if (!(Array.isArray(resp) && resp.length)) {
+    return {
+      error: 'response must be a non-empty array'
+    };
+  }
+  if (!(Array.isArray(params) && params.length)) {
+    return {
+      error: 'params must be a non-empty array'
+    };
+  }
+  if (!(resp.length === params.length)) {
+    return {
+      error: 'length of response must match length of params'
+    };
+  }
+  for (let i = 0; i < resp.length; i++) {
+    if (!((typeof resp[i] === 'number') && Number.isFinite(resp[i]))) {
+      return {
+        error: 'response has non-numeric or non-finite elements'
+      };
+    }
+  }
+
+  const result = {};
+  const mResp = Module.MatrixFromArray([resp]);
+  const mParams = Module.MatrixFromArray(params);
+  const mRange = Module.MatrixFromArray([range]);
+  const est = Module.wleEst(mResp, mParams, mRange, Module.ModelType.GRM);
+
+  result.theta = est.theta.get(0);
+  result.info = est.info.get(0);
+  result.sem = est.sem.get(0);
+
+  // cleanup wasm heap
+  mResp.delete();
+  mParams.delete();
+  mRange.delete();
+  est.theta.delete();
+  est.info.delete();
+  est.sem.delete();
+
+  return result;
+};
+
 Module['FI_brm_expected_one'] = function(params, theta) {
   if (!(Array.isArray(params) && params.length)) {
     return {

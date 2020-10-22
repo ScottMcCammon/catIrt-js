@@ -471,6 +471,54 @@ describe('catIrt webasm', function () {
       mResp.delete();
       mParams.delete();
     });
+
+    it('uniroot_lder1(range, uresp_grm[0], params, "WLE", "GRM")', function () {
+      const expected = {
+        root: -0.3175944,
+        f_root: -6.413003e-06,
+        iter: 7,
+        estim_prec: 6.103516e-05
+      };
+
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.GRM);
+
+      assert.strictEqual(format(res.root), format(expected.root));
+      assert.strictEqual(format(res.f_root), format(expected.f_root));
+      assert.strictEqual(format(res.iter), format(expected.iter));
+      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
+
+      // wasm heap cleanup
+      mRange.delete();
+      mResp.delete();
+      mParams.delete();
+    });
+
+    it('uniroot_lder1(range, uresp_grm[1], params, "WLE", "GRM")', function () {
+      const expected = {
+        root: -0.04421021,
+        f_root: -7.230714e-06,
+        iter: 6,
+        estim_prec: 6.103516e-05
+      };
+
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const mResp = catirtlib.MatrixFromArray([uresp_grm[1]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.GRM);
+
+      assert.strictEqual(format(res.root), format(expected.root));
+      assert.strictEqual(format(res.f_root), format(expected.f_root));
+      assert.strictEqual(format(res.iter), format(expected.iter));
+      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
+
+      // wasm heap cleanup
+      mRange.delete();
+      mResp.delete();
+      mParams.delete();
+    });
   });
 
   describe('wleEst:', function () {
@@ -485,11 +533,6 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
       const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
-
-      assert.strictEqual(format(res.root), format(expected.root));
-      assert.strictEqual(format(res.f_root), format(expected.f_root));
-      assert.strictEqual(format(res.iter), format(expected.iter));
-      assert.strictEqual(format(res.estim_prec), format(expected.estim_prec));
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
@@ -540,6 +583,81 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
       const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mRange.delete();
+      res.theta.delete();
+      res.info.delete();
+      res.sem.delete();
+    });
+
+    it('wleEst(uresp_grm[0], params, range, "GRM")', function () {
+      const expected = {
+        theta: [-0.3175944],
+        info: [6.011785],
+        sem: [0.4098758]
+      };
+
+      const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mRange.delete();
+      res.theta.delete();
+      res.info.delete();
+      res.sem.delete();
+    });
+
+    it('wleEst(uresp_grm[1], params, range, "GRM")', function () {
+      const expected = {
+        theta: [-0.04421021],
+        info: [5.352786],
+        sem: [0.4322895]
+      };
+
+      const mResp = catirtlib.MatrixFromArray([uresp_grm[1]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mRange.delete();
+      res.theta.delete();
+      res.info.delete();
+      res.sem.delete();
+    });
+
+    it('wleEst(uresp_grm, params, range, "GRM")', function () {
+      const expected = {
+        theta: [-0.3175944, -0.04421021],
+        info: [6.011785, 5.352786],
+        sem: [0.4098758, 0.4322895]
+      };
+
+      const mResp = catirtlib.MatrixFromArray(uresp_grm);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mRange = catirtlib.MatrixFromArray([range]);
+      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
@@ -607,6 +725,62 @@ describe('catIrt webasm', function () {
         error: 'length of response must match length of params'
       };
       const res = catirtlib.wleEst_brm_one(uresp[0], itemparams.slice(1, 2), range);
+      assert.strictEqual(format(res), format(expected));
+    });
+  });
+
+  describe('wleEst_grm_one:', function () {
+    it('wleEst_grm_one(uresp_grm[0], params, range)', function () {
+      const expected = {
+        theta: -0.3175944,
+        info: 6.011785,
+        sem: 0.4098758
+      };
+      const res = catirtlib.wleEst_grm_one(uresp_grm[0], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid response: non-array or empty', function () {
+      const expected = {
+        error: 'response must be a non-empty array'
+      };
+
+      let res = catirtlib.wleEst_grm_one([], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.wleEst_brm_one({}, itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid response: non-numeric/non-finite response element', function () {
+      const expected = {
+        error: 'response has non-numeric or non-finite elements'
+      };
+
+      let res = catirtlib.wleEst_grm_one([1, 2, NaN, 4, 5], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.wleEst_grm_one([1, [], {}, 'testo', 5], itemparams, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid params: non-array or empty', function () {
+      const expected = {
+        error: 'params must be a non-empty array'
+      };
+
+      let res = catirtlib.wleEst_grm_one(uresp[1], [], range);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.wleEst_grm_one(uresp[1], {}, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid params: response/params length mismatch', function () {
+      const expected = {
+        error: 'length of response must match length of params'
+      };
+      const res = catirtlib.wleEst_grm_one(uresp_grm[0], itemparams.slice(1, 2), range);
       assert.strictEqual(format(res), format(expected));
     });
   });
