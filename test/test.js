@@ -866,6 +866,14 @@ describe('catIrt webasm', function () {
       assert.strictEqual(format(res), format(expected));
     });
 
+    it('itChoose(items, "grm", "UW-FI", "theta", {cat_theta=2.0})', function () {
+      const expected = {
+        items: [{id: 'item5', params: [1.48, 0.72, 0.12], info: 0.1190124}]
+      };
+      const res = catirtlib.itChoose(items, 'grm', 'UW-FI', 'theta', {cat_theta: 2.0});
+      assert.strictEqual(format(res), format(expected));
+    });
+
     it('invalid items: non-array or empty', function () {
       const expected = {
         error: '"from_items" must be a non-empty array'

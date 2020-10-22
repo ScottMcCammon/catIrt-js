@@ -265,7 +265,7 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
   }
 
   // validate model
-  if (!(model === 'brm')) {
+  if (!(model === 'brm' || model === 'grm')) {
     return {
       error: `Invalid or unsupported "model" provided: "${model}"`
     };
