@@ -496,7 +496,7 @@ struct FI_Result
 };
 
 /**
- * Fisher Information of items for given ability estimates and optional responses (for OBSERVED info)
+ * Fisher Information of BRM items for given ability estimates and optional responses (for OBSERVED info)
  *
  * Port of: FI.brm.R
  *
@@ -543,6 +543,69 @@ const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const Array
   // Observed Fisher Information
   else {
     result.item = -1 * lder2_brm(resp, theta, params);
+  }
+
+  result.test = result.item.rowwise().sum();
+  result.sem = sqrt( 1 / result.test );
+
+  return result;
+}
+
+/**
+ * Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info)
+ *
+ * Port of: FI.grm.R
+ *
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ * @param theta       Ability estimates for N people
+ * @param type        FIType::EXPECTED or FIType::OBSERVED
+ * @param resp        Item responses (N people x M responses) should be size 0 for FIType::EXPECTED
+ *
+ * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
+ */
+const FI_Result FI_grm( const Ref<const ArrayXXd>& params, const Ref<const ArrayXd>& theta, FIType type, const Ref<const ArrayXXd>& resp )
+{
+  // check supported types
+  if ( type != FIType::OBSERVED && type != FIType::EXPECTED ) {
+    throw "FI_grm unexpected type";
+  }
+
+  // Make sure that resp is NULL if type is "expected"
+  if ( type == FIType::EXPECTED && resp.size() > 0 ) {
+    throw "FI_brm type EXPECTED with non-zero responses";
+  }
+
+  // Make sure that resp exists if we are calculating "observed" information
+  if ( type == FIType::OBSERVED && resp.size() == 0 ) {
+    throw "FI_brm need response scalar/vector to calculate observed information";
+  }
+
+  int N = theta.size();  // number of people
+  int M = params.rows(); // number of items
+  int K = params.cols(); // number of categories
+  ArrayXXd p;
+  ArrayXXd pder1;
+  FI_Result result = FI_Result(type);
+  result.item.resize(N, M);
+
+  // Expected Fisher Information: sum[P'^2/P]
+  if ( type == FIType::EXPECTED ) {
+    // Calculating the probability of response:
+    p = p_grm(theta, params);
+
+    // Calculating the first derivative:
+    pder1 = pder1_grm(theta, params);
+
+    ArrayXXd tmp = pder1.square() / p;
+
+    // sum columns of each person's block and add as row to result.item
+    for (int i = 0; i < N; i++) {
+        result.item.row(i) = tmp.block(i * K, 0, K, M).colwise().sum();
+    }
+  }
+  // Observed Fisher Information
+  else {
+    result.item = -1 * lder2_grm(resp, theta, params);
   }
 
   result.test = result.item.rowwise().sum();
@@ -992,6 +1055,11 @@ JSFI_Result embind_FI_brm(const JSMatrix *params, const JSMatrix *theta, FIType 
   return JSFI_Result(FI_brm(params->toEigen(), theta->toEigen(), type, resp->toEigen()));
 }
 
+JSFI_Result embind_FI_grm(const JSMatrix *params, const JSMatrix *theta, FIType type, const JSMatrix *resp)
+{
+  return JSFI_Result(FI_grm(params->toEigen(), theta->toEigen(), type, resp->toEigen()));
+}
+
 Uniroot_Result embind_uniroot_lder1(const JSMatrix *range, const JSMatrix *resp, const JSMatrix *params, LderType type, ModelType model)
 {
     const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayX3d>&, LderType);
@@ -1089,6 +1157,7 @@ EMSCRIPTEN_BINDINGS(Module)
     function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
     function("lder2_grm", &embind_lder2_grm, allow_raw_pointers());
     function("FI_brm", &embind_FI_brm, allow_raw_pointers());
+    function("FI_grm", &embind_FI_grm, allow_raw_pointers());
     function("uniroot_lder1", &embind_uniroot_lder1, allow_raw_pointers());
     function("wleEst", &embind_wleEst, allow_raw_pointers());
 }

@@ -361,6 +361,68 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('FI_grm:', function () {
+    it('FI_grm(params, theta, "EXPECTED")', function () {
+      const expected = {
+        type: catirtlib.FIType.EXPECTED,
+        item: [
+          [0.5979150, 0.5026771, 0.3045263, 0.1180620, 0.09919267],
+          [0.2867264, 0.2444279, 0.3141072, 0.3126753, 0.26253014]
+        ],
+        test: [1.622373, 1.420467],
+        sem: [0.7850994, 0.8390434]
+      };
+
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const mResp = new catirtlib.Matrix(0, 0);
+      const res = catirtlib.FI_grm(mParams, mTheta, catirtlib.FIType.EXPECTED, mResp);
+
+      assert.strictEqual(res.type, expected.type);
+      assert.strictEqual(format(catirtlib.MatrixToArray(res.item)), format(expected.item));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.test)), format(expected.test));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      mResp.delete();
+      res.item.delete();
+      res.test.delete();
+      res.sem.delete();
+    });
+
+    it('FI_grm(params, theta, "OBSERVED", resp)', function () {
+      const expected = {
+        type: catirtlib.FIType.OBSERVED,
+        item: [
+          [0.4939227, 0.62417921, 0.3038985, 0.205088, 0.09989038],
+          [0.3035435, 0.05638416, 0.3134121, 0.315370, 0.73490795]
+        ],
+        test: [1.726979, 1.723618],
+        sem: [0.7609506, 0.7616922]
+      };
+
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const mResp = catirtlib.MatrixFromArray(uresp_grm);
+      const res = catirtlib.FI_grm(mParams, mTheta, catirtlib.FIType.OBSERVED, mResp);
+
+      assert.strictEqual(res.type, expected.type);
+      assert.strictEqual(format(catirtlib.MatrixToArray(res.item)), format(expected.item));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.test)), format(expected.test));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      mResp.delete();
+      res.item.delete();
+      res.test.delete();
+      res.sem.delete();
+    });
+  });
+
   describe('uniroot_lder1:', function () {
     it('uniroot_lder1(range, uresp[0], params, "WLE", "BRM")', function () {
       const expected = {
