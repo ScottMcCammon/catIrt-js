@@ -821,6 +821,42 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('FI_grm_expected_one:', function () {
+    it('FI_grm_expected_one(params, theta[0])', function () {
+      const expected = {
+        item: [0.5979150, 0.5026771, 0.3045263, 0.1180620, 0.09919267],
+        test: 1.622373,
+        sem: 0.7850994
+      };
+      const res = catirtlib.FI_grm_expected_one(itemparams, theta[0]);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid params: non-array or empty', function () {
+      const expected = {
+        error: 'params must be a non-empty array'
+      };
+
+      let res = catirtlib.FI_grm_expected_one([], theta[0]);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.FI_grm_expected_one({}, theta[0]);
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid theta: non-finite / non-numeric', function () {
+      const expected = {
+        error: 'theta must be a finite number'
+      };
+
+      let res = catirtlib.FI_grm_expected_one(itemparams, null);
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.FI_grm_expected_one(itemparams, [1.7]);
+      assert.strictEqual(format(res), format(expected));
+    });
+  });
+
   describe('itChoose:', function () {
     it('itChoose(items, "brm", "UW-FI", "theta", {cat_theta=0.0})', function () {
       const expected = {
