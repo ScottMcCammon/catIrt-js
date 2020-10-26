@@ -299,6 +299,62 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('logLik_grm:', function () {
+    it('logLik_grm(u, theta, params)', function () {
+      // expected values from R equivalent: `catIrt::logLik.grm(u, theta, params)`
+      const expected = [-7.466321, NaN];
+
+      const mResp = catirtlib.MatrixFromArray(uresp_grm);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+
+    it('logLik_grm(u[0], theta[0], params)', function () {
+      // expected values from R equivalent: `catIrt::logLik.grm(u, theta, params)`
+      const expected = [-7.466321];
+
+      const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([[theta[0]]]);
+      const res = catirtlib.logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+
+    it('logLik_grm(u[0], theta, params)', function () {
+      // expected values from R equivalent: `catIrt::logLik.grm(u, theta, params)`
+      const expected = [-7.466321, -12.8073];
+
+      const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+  });
+
   describe('FI_brm:', function () {
     it('FI_brm(params, theta, "EXPECTED")', function () {
       const expected = {
@@ -919,6 +975,14 @@ describe('catIrt webasm', function () {
       assert.strictEqual(format(res), format(expected));
 
       res = catirtlib.itChoose([{params:[1]}], 'grm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+    });
+  });
+
+  describe('termGLR_one:', function () {
+    it('termGLR_one(params, resp, options)', function () {
+      const expected = 1;
+      const res = catirtlib.termGLR_one(itemparams, uresp_grm[0], {categories:[0,1,2], delta:0.5, alpha:0.1, beta:0.1});
       assert.strictEqual(format(res), format(expected));
     });
   });

@@ -200,6 +200,116 @@ Module['FI_grm_expected_one'] = function(params, theta) {
   return result;
 };
 
+Module['termGLR_one'] = function(params, resp, options={}) {
+  const defaults = {
+    range: [-4.5, 4.5],
+    bounds: [-1, 1],
+    categories: [0, 1, 2],
+    delta: 0.1,
+    alpha: 0.05,
+    beta: 0.05
+  };
+  options = Object.assign({}, defaults, options);
+
+  //
+  // Argument checks
+  //
+
+  // validate params
+  if (!(Array.isArray(params) && params.length && Array.isArray(params[0]) && params[0].length > 1)) {
+    return {
+      error: 'params must be a non-empty 2-D array'
+    };
+  }
+  // validate resp
+  if (!(Array.isArray(resp) && resp.length === params.length)) {
+    return {
+      error: 'length of resp must match length of params'
+    };
+  }
+  for (let i = 0; i < resp.length; i++) {
+    if (!((typeof resp[i] === 'number') && Number.isFinite(resp[i]))) {
+      return {
+        error: 'resp values must all be finite'
+      };
+    }
+  }
+  // validate options
+  if (!(Array.isArray(options.range) && (options.range.length === 2) && (options.range[0] < options.range[1]))) {
+    return {
+      error: 'invalid range option'
+    };
+  }
+  if (!(Array.isArray(options.bounds) && options.bounds.length === params[0].length - 1)) {
+    return {
+      error: 'invalid bounds option'
+    };
+  }
+  if (!(Array.isArray(options.categories) && options.categories.length === params[0].length)) {
+    return {
+      error: 'invalid categories option'
+    };
+  }
+  if (!(Number.isFinite(options.delta) && options.delta > 0)) {
+    return {
+      error: 'invalid delta option'
+    };
+  }
+  if (!(Number.isFinite(options.alpha) && options.alpha > 0)) {
+    return {
+      error: 'invalid alpha option'
+    };
+  }
+  if (!(Number.isFinite(options.beta) && options.beta > 0)) {
+    return {
+      error: 'invalid beta option'
+    };
+  }
+
+  const c_lower = Math.log( options.beta / (1 - options.alpha) );
+  const c_upper = Math.log( (1 - options.beta) / options.alpha );
+
+  // get likVals for points surrounding the cutpoint
+  const theta = [];
+  for (let t = options.range[0]; t <= options.range[1]; t += 0.01) {
+    theta.push(t);
+  }
+
+  const mResp = Module.MatrixFromArray([resp]);
+  const mParams = Module.MatrixFromArray(params);
+  const mTheta = Module.MatrixFromArray([theta]);
+  const res = Module.logLik_grm(mResp, mTheta, mParams, Module.LogLikType.MLE);
+
+  const likVals = Module.VectorToArray(res);
+
+  mResp.delete();
+  mParams.delete();
+  mTheta.delete();
+  res.delete();
+
+  // find the highest point on the likelihood ratiofunction
+  const likRat = [];
+  for (let k = 0; k < options.bounds.length; k++) {
+    // Find the likelihood based on the indifference region
+    const u = Math.max(...likVals.filter((v, i) => (theta[i] > options.bounds[k] + options.delta)));
+    const l = Math.max(...likVals.filter((v, i) => (theta[i] < options.bounds[k] - options.delta)));
+
+    // standard likelihood ratio
+    likRat[k] = u - l;
+  }
+  likRat.unshift(c_upper + 0.000001);
+  likRat.push(c_lower - 0.000001);
+
+  // test each category
+  for (let k = 0; k < options.bounds.length + 1; k++) {
+    if ((likRat[k] >= c_upper) && (likRat[k+1] <= c_lower)) {
+      return options.categories[k];
+    }
+  }
+
+  return NaN;
+};
+
 // add deep copy to objects and arrays
 if (typeof Object.prototype.deepcopy === 'undefined') {
   Object.defineProperty(Object.prototype, 'deepcopy', {

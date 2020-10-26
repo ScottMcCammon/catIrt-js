@@ -13,6 +13,11 @@ enum class FIType {
     OBSERVED
 };
 
+enum class LogLikType {
+    MLE,
+    BME
+};
+
 enum class ModelType {
     BRM,
     GRM
@@ -381,6 +386,33 @@ const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>&
 }
 
 /**
+ * Log-likelihoods of reponses to items at given ability estimates
+ *
+ * Port of: lokLik.grm.R
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people (or T thetas if N people is 1)
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ * @param type        LogLikType::MLE or LogLikType::BME (not yet supported)
+ *
+ * @return log-likelihood for each person - vector (N x 1)
+ */
+const ArrayXd logLik_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LogLikType type=LogLikType::MLE )
+{
+  ArrayXXd p = p_grm(theta, params);
+  ArrayXXd logLik;
+
+  if (type == LogLikType::BME) {
+    throw "logLik_grm unsupported LogLikType::BME";
+  }
+
+  logLik = sel_prm(p, u, params.cols()).log();
+
+  // return scalar vector of logLik's
+  return logLik.rowwise().sum();
+}
+
+/**
  * Derivative of log-likelihoods of reponses to items at given ability estimates
  *
  * Port of: lder1.grm.R
@@ -390,7 +422,7 @@ const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>&
  * @param params      Parameters for M items (M x K matrix) where K is number of categories
  * @param ltype       LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)
  *
- * @return derivative of log-likelihood for each person - vector (N x 1)
+ * @return derivative of log-likelihood for each person/category - vector (N x 1)
  */
 const ArrayXd lder1_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LderType ltype )
 {
@@ -1022,6 +1054,11 @@ const Vector embind_lder1_grm(const JSMatrix *u, const JSMatrix *theta, const JS
   return VectorFromMatrix(lder1_grm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
 }
 
+const Vector embind_logLik_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LogLikType type)
+{
+  return VectorFromMatrix(logLik_grm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
+}
+
 const JSMatrix embind_sel_prm(const JSMatrix *p, const JSMatrix *u, int K)
 {
   return JSMatrix(sel_prm(p->toEigen(), u->toEigen(), K));
@@ -1119,6 +1156,11 @@ EMSCRIPTEN_BINDINGS(Module)
         .value("WLE", LderType::WLE)
         ;
 
+    enum_<LogLikType>("LogLikType")
+        .value("MLE", LogLikType::MLE)
+        .value("BME", LogLikType::BME)
+        ;
+
     enum_<FIType>("FIType")
         .value("EXPECTED", FIType::EXPECTED)
         .value("OBSERVED", FIType::OBSERVED)
@@ -1167,6 +1209,7 @@ EMSCRIPTEN_BINDINGS(Module)
     function("pder2_grm", &embind_pder2_grm, allow_raw_pointers());
     function("lder1_brm", &embind_lder1_brm, allow_raw_pointers());
     function("sel_prm", &embind_sel_prm, allow_raw_pointers());
+    function("logLik_grm", &embind_logLik_grm, allow_raw_pointers());
     function("lder1_grm", &embind_lder1_grm, allow_raw_pointers());
     function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
     function("lder2_grm", &embind_lder2_grm, allow_raw_pointers());
