@@ -885,9 +885,9 @@ describe('catIrt webasm', function () {
       assert.strictEqual(format(res), format(expected));
     });
 
-    it('invalid items: missing or incorrect params', function () {
+    it('invalid items: non-object or no params', function () {
       const expected = {
-        error: '"from_items" entries must be objects with params array of length 3'
+        error: '"from_items" entries must be objects with params array'
       };
       let res = catirtlib.itChoose([[1,2,3]], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
       assert.strictEqual(format(res), format(expected));
@@ -895,10 +895,30 @@ describe('catIrt webasm', function () {
       res = catirtlib.itChoose([{}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
       assert.strictEqual(format(res), format(expected));
 
-      res = catirtlib.itChoose([{params:[]}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+    });
+
+    it('invalid items: BRM bad params length', function () {
+      const expected = {
+        error: '"from_items" params must have length 3 for brm model'
+      };
+      let res = catirtlib.itChoose([{params:[1, 2, 3, 4]}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
       assert.strictEqual(format(res), format(expected));
 
-      res = catirtlib.itChoose([{params:[1, 2, 3, 4]}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      res = catirtlib.itChoose([{params:[1, 2]}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.itChoose([{params:[]}], 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('invalid items: GRM bad params length', function () {
+      const expected = {
+        error: '"from_items" params must have length greater than 1 for grm model'
+      };
+      let res = catirtlib.itChoose([{params:[]}], 'grm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+
+      res = catirtlib.itChoose([{params:[1]}], 'grm', 'UW-FI', 'theta', {cat_theta: 0.0});
       assert.strictEqual(format(res), format(expected));
     });
   });

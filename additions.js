@@ -252,22 +252,32 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
   // Argument checks
   //
 
+  // validate model
+  if (!(model === 'brm' || model === 'grm')) {
+    return {
+      error: `Invalid or unsupported "model" provided: "${model}"`
+    };
+  }
+
   // validate from_items
   if (!(Array.isArray(from_items) && from_items.length > 0)) {
     return {
       error: `"from_items" must be a non-empty array`
     };
   }
-  if (!(typeof from_items[0] === 'object' && Array.isArray(from_items[0].params) && from_items[0].params.length === 3)) {
+  if (!(typeof from_items[0] === 'object' && Array.isArray(from_items[0].params))) {
     return {
-      error: `"from_items" entries must be objects with params array of length 3`
+      error: `"from_items" entries must be objects with params array`
     };
   }
-
-  // validate model
-  if (!(model === 'brm' || model === 'grm')) {
+  if ((model === 'brm') && !(from_items[0].params.length === 3)) {
     return {
-      error: `Invalid or unsupported "model" provided: "${model}"`
+      error: `"from_items" params must have length 3 for brm model`
+    };
+  }
+  if ((model === 'grm') && !(from_items[0].params.length > 1)) {
+    return {
+      error: `"from_items" params must have length greater than 1 for grm model`
     };
   }
 
@@ -308,7 +318,7 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
   }
   if (!(options.cat_theta === null || Number.isFinite(options.cat_theta))) {
     return {
-      error: `non-null "cat_resp" not used`
+      error: `"cat_theta" must be finite or null`
     };
   }
   if (!(options.range === null)) {
