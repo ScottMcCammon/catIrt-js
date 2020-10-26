@@ -329,37 +329,51 @@ const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>&
 }
 
 /**
- * Select item/category values based on response vectors
+ * Select item/category likelihoods
  *
  * Port of: sel.prm in ExtractOperators.R
  *
- * @param p ((N*K) x J) value matrix
+ * @param p ((M*K) x J) likelihood values for all categories / various thetas
  * @param u Item responses (N people x J responses)
  * @param K number of categories
  *
- * @return (N x J) matrix - vector of item values for each person
+ * @return (T x J) matrix - item likelihoods where T = {N, for N>1; M, for N=1}
  */
 const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>& u, int K ) {
   int N = u.rows();
   int J = p.cols();
-  int cat;
-  ArrayXXd lik(N, J);
+  int M, T;
+  int i, cat;
+  ArrayXXd lik;
 
-  if ((u.cols() != p.cols()) || ((u.rows() * K) != p.rows())) {
+  if (K < 2) {
+    throw "sel_prm invalid value for K";
+  }
+
+  M = p.rows() / K;
+  T = (N == 1 ? M : N);
+  lik.resize(M, J);
+
+  if ((N == 0) || (J == 0) || (M == 0)) {
+    throw "sel_prm 0-value for N, J, or M";
+  }
+
+  if ((u.cols() != p.cols()) || (p.rows() % K > 0) || (p.rows() % N > 0)) {
     throw "sel_prm dimension mismatch between p, u, and K";
   }
 
-  for (int i = 0; i < N; i++) {
-    for (int j = 0; j < J; j++) {
+  for (int t = 0; t < T; t++) {   // t: row index of result, start of block row in value matrix p
+    i = t % N;                    // i: row index into response matrix u
+    for (int j = 0; j < J; j++) { // j: col (item) index
       if (isnan(u(i, j))) {
         cat = -1;
       } else {
         cat = static_cast<int>(u(i, j));
       }
       if (cat > 0 && cat <= K) {
-        lik(i, j) = p.block(i * K, 0, K, J)(cat - 1, j);
+        lik(t, j) = p.block(t * K, 0, K, J)(cat - 1, j);
       } else {
-        lik(i, j) = nan("");
+        lik(t, j) = nan("");
       }
     }
   }
