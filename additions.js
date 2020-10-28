@@ -307,7 +307,7 @@ Module['termGLR_one'] = function(params, resp, options={}) {
     }
   }
 
-  return NaN;
+  return null;
 };
 
 // add deep copy to objects and arrays
