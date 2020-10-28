@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 const createCatIrtLib = require('../dist/catirtlib');
 const items = require('../data/mocca-items.json');
-const params = [];
-const theta = [];
 
 // extract params
-for (let i = 0; i < items.length; i++) {
-  params.push(items[i].params);
-}
+const params = items.map(i => i.p1params);
 
 // create theta range
+const theta = [];
 for (let t100 = -500; t100 <= 500; t100 += 5) {
   theta.push(t100 / 100);
 }
@@ -23,7 +20,7 @@ createCatIrtLib().then(function(catirt) {
   console.log(`theta,item,info,a,b,c`);
   for (let m = 0; m < info.item.rows(); m++) {
     for (let n = 0; n < info.item.cols(); n++) {
-      console.log(`${theta[m]},${items[n]['item']},${info.item.get(m, n)},${params[n][0]},${params[n][1]},${params[n][2]}`);
+      console.log(`${theta[m]},${items[n]['id']},${info.item.get(m, n)},${params[n][0]},${params[n][1]},${params[n][2]}`);
     }
   }
 
