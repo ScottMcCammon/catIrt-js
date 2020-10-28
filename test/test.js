@@ -740,6 +740,29 @@ describe('catIrt webasm', function () {
       assert.strictEqual(format(res), format(expected));
     });
 
+    it('wleEst_brm_one: true theta:-3, 10 responses', function () {
+      const expected = {
+        theta: -0.7657313,
+        info: 10.82811,
+        sem: 0.3046733
+      };
+      const resp = [0, 1, 1, 0, 1, 1, 0, 1, 0, 0];
+      const params = [
+        [3.18342,-0.2713,0.24],
+        [2.93165,-0.649,0.24],
+        [2.85039,-0.5207,0.24],
+        [2.76896,-0.5084,0.24],
+        [2.78698,-0.798,0.24],
+        [2.72595,-0.7866,0.24],
+        [2.77967,-0.4423,0.24],
+        [2.66407,-0.7434,0.24],
+        [2.67223,-0.6145,0.24],
+        [2.65013,-0.7712,0.24]
+      ];
+      const res = catirtlib.wleEst_brm_one(resp, params, range);
+      assert.strictEqual(format(res), format(expected));
+    });
+
     it('invalid response: non-array or empty', function () {
       const expected = {
         error: 'response must be a non-empty array'
