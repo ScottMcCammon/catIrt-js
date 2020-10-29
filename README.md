@@ -1,12 +1,17 @@
-## Requirements and Setup
+# catIrt
+### A JavaScript / WebAssembly port of the [catIrt](https://github.com/swnydick/catIrt) R package
+
+This projet focuses on the functions necessary to build a performant CAT system deployable witin a NodeJS environment and thus does not currently have plans to port the simulation functonality of the R package. The intent is to use R for prototyping a new CAT system, and then this library to create the final model for web application delivery.
+
+## Requirements and Setup for Development
 1. Requires [nodeJS 12 or greater](https://nodejs.org/)
 2. Requires [emscripten 2.0.6 or greater](https://emscripten.org/docs/getting_started/downloads.html)
-3. Run: `npm install`
-4. Download [Eigen 3.3.8 or greater](https://gitlab.com/libeigen/eigen/-/releases) and extract to `eigen/`
+3. Requires [Eigen 3.3.8 or greater](https://gitlab.com/libeigen/eigen/-/releases) - download and extract to `eigen/`
+4. Requires a few nodejs packages: `npm install`
 
 ## Building
 Run: `npm run build`
-This will generate `dist/catirtlib.wasm` and `dist/catirtlib.js`
+This will generate `dist/catirt.wasm` and `dist/catirt.js`
 
 ## Testing
 Run: `npm test`
