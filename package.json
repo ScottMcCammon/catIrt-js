@@ -4,6 +4,9 @@
   "main": "./dist/catirt.js",
   "version": "1.0.0",
   "files": [
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
     "dist/catirt.js",
     "dist/catirt.wasm"
   ],
