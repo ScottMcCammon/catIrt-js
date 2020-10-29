@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "emcc -O2 --bind -I ./eigen catirt.cpp --pre-js additions.js -o dist/catirt.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='catirt_load'",
-    "test": "mocha --exclude 'test/manual*.js'"
+    "test": "mocha --exclude 'test/manual*.js' --exit"
   },
   "author": "Scott McCammon <mccammon@uoregon.edu>",
   "license": "GPL-3.0-or-later",
