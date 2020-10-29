@@ -1,7 +1,10 @@
-# catIrt
+# catIrt-js
+
+![Node.js CI](https://github.com/uomccammon/catIrt-js/workflows/Node.js%20CI/badge.svg)
+
 ### A JavaScript / WebAssembly port of the [catIrt](https://github.com/swnydick/catIrt) R package
 
-This project focuses on the functions necessary to build a performant CAT system deployable witin a NodeJS environment and thus does not currently have plans to port the simulation functonality of the R package. The intent is to use R for prototyping a new CAT system, and then this library to create the final model for web application delivery.
+This project focuses on the functions necessary to build a performant CAT system deployable within a NodeJS environment. There are currently no plans to port the high-level simulation functons in the R package. The intent is to use R for prototyping a new CAT system, and then this library to create the final model for web application delivery.
 
 ## Requirements and Setup for Development
 1. Requires [nodeJS 12 or greater](https://nodejs.org/)
