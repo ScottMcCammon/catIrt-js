@@ -8,7 +8,7 @@
     "dist/catirt.wasm"
   ],
   "engines": {
-    "node": ">=12.18.4"
+    "node": ">=10.0.0"
   },
   "scripts": {
     "build": "emcc -O3 --bind -I ./eigen catirt.cpp --pre-js additions.js -o dist/catirt.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='catirt_load'",
