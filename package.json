@@ -11,7 +11,7 @@
     "node": ">=12.18.4"
   },
   "scripts": {
-    "build": "emcc -O2 --bind -I ./eigen catirt.cpp --pre-js additions.js -o dist/catirt.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='catirt_load'",
+    "build": "emcc -O3 --bind -I ./eigen catirt.cpp --pre-js additions.js -o dist/catirt.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='catirt_load'",
     "test": "mocha --exclude 'test/manual*.js' --exit"
   },
   "repository": {
