@@ -6,18 +6,10 @@
 
 This project focuses on the functions necessary to build a performant CAT system deployable within a NodeJS environment. There are currently no plans to port the high-level simulation functons in the R package. The intent is to use R for prototyping a new CAT system, and then this library to create the final model for web application delivery.
 
-## Requirements and Setup for Development
-1. Requires [nodeJS 12 or greater](https://nodejs.org/)
-2. Requires [emscripten 2.0.6 or greater](https://emscripten.org/docs/getting_started/downloads.html)
-3. Requires [Eigen 3.3.8 or greater](https://gitlab.com/libeigen/eigen/-/releases) - download and extract to `eigen/`
-4. Requires a few nodejs packages: `npm install`
-
-## Building
-Run: `npm run build`
-This will generate `dist/catirt.wasm` and `dist/catirt.js`
-
-## Testing
-Run: `npm test`
+## Install
+```
+npm install catirt
+```
 
 ## Usage
 ```
@@ -55,3 +47,17 @@ catirt_load().then(function(catirt) {
   }
 });
 ```
+
+## Development
+1. Requires [nodeJS 10 or greater](https://nodejs.org/) - v14 recommended
+2. Requires [emscripten 2.0.6 or greater](https://emscripten.org/docs/getting_started/downloads.html)
+3. Requires [Eigen 3.3.8 or greater](https://gitlab.com/libeigen/eigen/-/releases) - download and extract to `eigen/`
+4. Requires nodejs packages for testing: `npm install`
+
+## Building
+Run: `npm run build`
+This will generate `dist/catirt.wasm` and `dist/catirt.js`
+
+## Testing
+Unit tests: `npm test`
+Performance test: `node ./test/manual-performance-test.js`
