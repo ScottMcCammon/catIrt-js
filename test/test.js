@@ -357,6 +357,7 @@ describe('catIrt webasm', function () {
 
   describe('FI_brm:', function () {
     it('FI_brm(params, theta, "EXPECTED")', function () {
+      // expected values from R equivalent: `catIrt::FI.brm(params, theta, type="expected")`
       const expected = {
         type: catirtlib.FIType.EXPECTED,
         item: [
@@ -387,6 +388,7 @@ describe('catIrt webasm', function () {
     });
 
     it('FI_brm(params, theta, "OBSERVED", resp)', function () {
+      // expected values from R equivalent: `catIrt::FI.brm(params, theta, type="observed", resp=resp)`
       const expected = {
         type: catirtlib.FIType.OBSERVED,
         item: [
@@ -419,6 +421,7 @@ describe('catIrt webasm', function () {
 
   describe('FI_grm:', function () {
     it('FI_grm(params, theta, "EXPECTED")', function () {
+      // expected values from R equivalent: `catIrt::FI.grm(params, theta, type="expected")`
       const expected = {
         type: catirtlib.FIType.EXPECTED,
         item: [
@@ -449,6 +452,7 @@ describe('catIrt webasm', function () {
     });
 
     it('FI_grm(params, theta, "OBSERVED", resp)', function () {
+      // expected values from R equivalent: `catIrt::FI.grm(params, theta, type="observed", resp=resp)`
       const expected = {
         type: catirtlib.FIType.OBSERVED,
         item: [
