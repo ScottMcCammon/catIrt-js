@@ -13,9 +13,9 @@ Run: `npm test`
 
 ## Usage
 ```
-const create_catirtlib = require('catirtlib');
+const catirt_load = require('catirt');
 
-create_catirtlib().then(function(catirt) {
+catirt_load().then(function(catirt) {
   const resp = [NaN, NaN, 1, NaN, NaN];
   const items = [
     {id: 'item1', params: [1.55,-1.88,0.12]},

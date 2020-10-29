@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-const create_catirtlib = require('../dist/catirtlib');
+const catirt_load = require('../dist/catirt');
 const items = require('../data/mocca-items.json');
 
 // simulated responses for examinees at various true thetas
@@ -30,7 +30,7 @@ class MOCCACatP1 {
    */
   static async isReady() {
     if (this.catirt === null) {
-      this.catirt = await create_catirtlib();
+      this.catirt = await catirt_load();
     }
     else if (typeof this.catirt.then === 'function') {
       await this.catirt;

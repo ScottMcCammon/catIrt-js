@@ -1,18 +1,17 @@
 {
-  "name": "catirtlib.wasm",
+  "name": "catirt",
   "version": "1.0.0",
-  "description": "WebAssembly port of catIrt library",
-  "main": "catirtlib.js",
+  "description": "CatIrt-js is a JavaScript / WebAssembly port of the [catIrt](https://github.com/swnydick/catIrt) R package",
+  "main": "catirt.js",
   "engines": {
     "node": ">=12.18.4"
   },
   "scripts": {
-    "clean": "rm dist/catirtlib.*",
-    "build": "emcc -O2 --bind -I ./eigen catirtlib.cpp --pre-js additions.js -o dist/catirtlib.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='createCatIrtLib'",
+    "build": "emcc -O2 --bind -I ./eigen catirt.cpp --pre-js additions.js -o dist/catirt.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='catirt_load'",
     "test": "mocha --exclude 'test/manual*.js'"
   },
   "author": "Scott McCammon <mccammon@uoregon.edu>",
-  "license": "GPL-2.0-or-later",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "mathjs": "^7.5.1",
     "mocha": "^8.1.3"

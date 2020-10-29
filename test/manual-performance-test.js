@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-const createCatIrtLib = require('../dist/catirtlib');
+const catirt_load = require('../dist/catirt');
 const itembank = require('../data/mocca-items.json');
 const respbank = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3];
 
-createCatIrtLib().then(function(catirtlib) {
+catirt_load().then(function(catirtlib) {
   let maxHeap = 0;
   let i = 1;
   let n, resp, useditems, fromitems, res, sel, u, endTime;

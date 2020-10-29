@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const createCatIrtLib = require('../dist/catirtlib');
+const catirt_load = require('../dist/catirt');
 const items = require('../data/mocca-items.json');
 
 // extract params
@@ -11,7 +11,7 @@ for (let t100 = -500; t100 <= 500; t100 += 5) {
   theta.push(t100 / 100);
 }
 
-createCatIrtLib().then(function(catirt) {
+catirt_load().then(function(catirt) {
   const mParams = catirt.MatrixFromArray(params);
   const mResp = new catirt.Matrix(0, 0);
   const mTheta = catirt.MatrixFromArray([theta]);

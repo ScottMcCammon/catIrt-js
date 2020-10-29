@@ -1,5 +1,5 @@
 'use strict';
-const create_catirtlib = require('../dist/catirtlib');
+const catirt_load = require('../dist/catirt');
 const mathjs = require('mathjs');
 const assert = require('assert').strict;
 let catirtlib = {};
@@ -32,7 +32,7 @@ describe('catIrt webasm', function () {
 
   // load wasm (asynchronous)
   before('loading catirtlib wasm module', function(done) {
-    create_catirtlib().then(function(Module) {
+    catirt_load().then(function(Module) {
       catirtlib = Module;
       done();
     });
