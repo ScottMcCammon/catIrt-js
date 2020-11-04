@@ -466,10 +466,8 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
   // Calculate item info
   //
 
-  // create copy of items for safe modifications
-  from_items = from_items.deepcopy();
-
   const theta = (options.cat_theta || 0);
+  let item_info = [];
 
   if (select === 'UW-FI') {
     if (model === 'brm') {
@@ -480,9 +478,10 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
     }
   }
 
-  // add info to item collection
+  // create sortable info array that tracks from_items index
+  const info_sort = [];
   item_info.forEach((info, i) => {
-    from_items[i].info = info;
+    info_sort.push({info, index: i});
   });
 
 
@@ -491,9 +490,15 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
   //
 
   // sort and select random sample from top N items
-  from_items.sort((a, b) => b.info - a.info);
-  from_items = from_items.slice(0, options.n_select);
-  const selected_items = from_items.shuffle().slice(0, options.numb);
+  info_sort.sort((a, b) => b.info - a.info);
+  const top_items = info_sort.slice(0, options.n_select).map(o => {
+    return {
+      id: from_items[o.index].id,
+      params: from_items[o.index].params,
+      info: o.info
+    };
+  });
+  const selected_items = top_items.shuffle().slice(0, options.numb);
 
   return {
     items: selected_items,
