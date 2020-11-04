@@ -4,12 +4,14 @@ Module['MatrixFromArray'] = function(arr) {
   }
 
   let v2d = new Module.Vector2d();
-  arr.forEach(a => {
+  for (let i = 0; i < arr.length; i++) {
     let v = new Module.Vector();
-    a.forEach(val => v.push_back(val));
+    for (let j = 0; j < arr[i].length; j++) {
+      v.push_back(arr[i][j]);
+    }
     v2d.push_back(v);
     v.delete();
-  });
+  }
   const m = Module.Matrix.fromVector(v2d);
   v2d.delete();
   return m;
@@ -480,9 +482,9 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
 
   // create sortable info array that tracks from_items index
   const info_sort = [];
-  item_info.forEach((info, i) => {
-    info_sort.push({info, index: i});
-  });
+  for (let i = 0; i < item_info.length; i++) {
+    info_sort.push({info: item_info[i], index: i});
+  }
 
 
   //
