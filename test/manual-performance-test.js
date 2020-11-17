@@ -3,6 +3,10 @@ const catirt_load = require('../dist/catirt');
 const itembank = require('../data/mocca-items.json');
 const respbank = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3];
 
+function resp2binary(r) {
+    return (r === 2 ? 1 : 0);
+}
+
 catirt_load().then(function(catirtlib) {
   let maxHeap = 0;
   let i = 1;
@@ -19,7 +23,7 @@ catirt_load().then(function(catirtlib) {
     fromitems = itembank.filter((_, i) => (i >= n));
 
     // theta1 scoring
-    res = catirtlib.wleEst_brm_one(resp.map(r => (r===2 ? 1 : 0)), useditems.map(it => it.p1params));
+    res = catirtlib.wleEst_brm_one(resp.map(resp2binary), useditems.map(it => it.p1params));
 
     // phase1 item selection
     if (n <= 20) {
