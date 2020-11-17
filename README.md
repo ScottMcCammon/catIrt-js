@@ -56,8 +56,10 @@ catirt_load().then(function(catirt) {
 
 ## Building
 Run: `npm run build`
+
 This will generate `dist/catirt.wasm` and `dist/catirt.js`
 
 ## Testing
 Unit tests: `npm test`
+
 Performance test: `node ./test/manual-performance-test.js`
