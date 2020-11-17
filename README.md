@@ -4,7 +4,7 @@
 
 ### A JavaScript / WebAssembly port of the [catIrt](https://github.com/swnydick/catIrt) R package
 
-This project focuses on the functions necessary to build a performant CAT system deployable within a NodeJS environment. There are currently no plans to port the high-level simulation functons in the R package. The intent is to use R for prototyping a new CAT system, and then this library to create the final model for web application delivery.
+This project focuses on the functions necessary to build a performant CAT system deployable within a NodeJS environment. There are currently no plans to port the high-level simulation functions in the R package. The intent is to use R for prototyping a new CAT model, and then this library to create the final system for web application delivery.
 
 ## Install
 ```
