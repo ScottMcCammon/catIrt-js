@@ -15,7 +15,7 @@ catirt_load().then(function(catirt) {
   const mParams = catirt.MatrixFromArray(params);
   const mResp = new catirt.Matrix(0, 0);
   const mTheta = catirt.MatrixFromArray([theta]);
-  const info = catirt.FI_brm(mParams, mTheta, catirt.FIType.EXPECTED, mResp);
+  const info = catirt.wasm_FI_brm(mParams, mTheta, catirt.FIType.EXPECTED, mResp);
 
   console.log(`theta,item,info,a,b,c`);
   for (let m = 0; m < info.item.rows(); m++) {
