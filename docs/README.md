@@ -292,13 +292,11 @@ Filter array of items for those that have not been answered
 
 
 
-## [p_brm](../src/catirt.cpp#L32)
+## [wasm_p_brm](../src/catirt.cpp#L1018)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 Generate the BRM item probability matrix for person(s) with given ability estimates 
-
-Port of: p.brm.R 
 
 
 
@@ -319,13 +317,11 @@ Port of: p.brm.R
 
 
 
-## [p_grm](../src/catirt.cpp#L70)
+## [wasm_p_grm](../src/catirt.cpp#L1031)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 Generate the item GRM probability matrix for person(s) with given ability estimates 
-
-Port of: p.grm.R 
 
 
 
@@ -346,13 +342,11 @@ Port of: p.grm.R
 
 
 
-## [pder1_brm](../src/catirt.cpp#L115)
+## [wasm_pder1_brm](../src/catirt.cpp#L1044)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 Derivative of the BRM item probability matrix for person(s) with given ability estimates 
-
-Port of: pder1.brm.R 
 
 
 
@@ -373,13 +367,11 @@ Port of: pder1.brm.R
 
 
 
-## [pder1_grm](../src/catirt.cpp#L155)
+## [wasm_pder1_grm](../src/catirt.cpp#L1057)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 Derivative of the GRM item probability matrix for person(s) with given ability estimates 
-
-Port of: pder1.grm.R 
 
 
 
@@ -400,13 +392,11 @@ Port of: pder1.grm.R
 
 
 
-## [pder2_brm](../src/catirt.cpp#L201)
+## [wasm_pder2_brm](../src/catirt.cpp#L1070)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 2nd derivative of the BRM item probability matrix for person(s) with given ability estimates 
-
-Port of: pder2.brm.R 
 
 
 
@@ -427,13 +417,11 @@ Port of: pder2.brm.R
 
 
 
-## [pder2_grm](../src/catirt.cpp#L243)
+## [wasm_pder2_grm](../src/catirt.cpp#L1083)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 2nd derivative of the GRM item probability matrix for person(s) with given ability estimates 
-
-Port of: pder2.grm.R 
 
 
 
@@ -454,13 +442,11 @@ Port of: pder2.grm.R
 
 
 
-## [lder1_brm](../src/catirt.cpp#L290)
+## [wasm_lder1_brm](../src/catirt.cpp#L1096)
 
-**Type:** `const` `ArrayXd`
+**Type:** `const` `Vector`
 
 Derivative of log-likelihoods of reponses to items at given ability estimates 
-
-Port of: lder1.brm.R 
 
 
 
@@ -471,7 +457,7 @@ Port of: lder1.brm.R
 |u|Item responses (N people x M responses)|
 |theta|Ability estimates for N people|
 |params|Parameters for M items (M x 3 matrix)|
-|ltype|LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood) |
+|type|LderType.WLE (weighted likelihood) or LderType.MLE (maximum likelihood) |
 
 
 **Returned Value:** derivative of log-likelihood for each person - vector (N x 1) 
@@ -483,13 +469,65 @@ Port of: lder1.brm.R
 
 
 
-## [sel_prm](../src/catirt.cpp#L337)
+## [wasm_lder1_grm](../src/catirt.cpp#L1111)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `Vector`
+
+Derivative of log-likelihoods of reponses to items at given ability estimates 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x K matrix) where K is number of categories|
+|type|LderType.WLE (weighted likelihood) or LderType.MLE (maximum likelihood) |
+
+
+**Returned Value:** derivative of log-likelihood for each person/category - vector (N x 1) 
+
+
+
+
+
+
+
+
+## [wasm_logLik_grm](../src/catirt.cpp#L1126)
+
+**Type:** `const` `Vector`
+
+Log-likelihoods of reponses to items at given ability estimates 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people (or T thetas if N people is 1)|
+|params|Parameters for M items (M x K matrix) where K is number of categories|
+|type|LogLikType.MLE (LogLikType.BME not yet supported) |
+
+
+**Returned Value:** log-likelihood for each person - vector (N x 1) 
+
+
+
+
+
+
+
+
+## [wasm_sel_prm](../src/catirt.cpp#L1141)
+
+**Type:** `const` `JSMatrix`
 
 Select item/category likelihoods 
-
-Port of: sel.prm in ExtractOperators.R 
 
 
 
@@ -511,71 +549,11 @@ Port of: sel.prm in ExtractOperators.R
 
 
 
-## [logLik_grm](../src/catirt.cpp#L389)
+## [wasm_lder2_brm](../src/catirt.cpp#L1155)
 
-**Type:** `const` `ArrayXd`
-
-Log-likelihoods of reponses to items at given ability estimates 
-
-Port of: lokLik.grm.R 
-
-
-
-
-
-|Parameter Name|Description|
-|-----|-----|
-|u|Item responses (N people x M responses)|
-|theta|Ability estimates for N people (or T thetas if N people is 1)|
-|params|Parameters for M items (M x K matrix) where K is number of categories|
-|type|LogLikType::MLE or LogLikType::BME (not yet supported) |
-
-
-**Returned Value:** log-likelihood for each person - vector (N x 1) 
-
-
-
-
-
-
-
-
-## [lder1_grm](../src/catirt.cpp#L416)
-
-**Type:** `const` `ArrayXd`
-
-Derivative of log-likelihoods of reponses to items at given ability estimates 
-
-Port of: lder1.grm.R 
-
-
-
-
-
-|Parameter Name|Description|
-|-----|-----|
-|u|Item responses (N people x M responses)|
-|theta|Ability estimates for N people|
-|params|Parameters for M items (M x K matrix) where K is number of categories|
-|ltype|LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood) |
-
-
-**Returned Value:** derivative of log-likelihood for each person/category - vector (N x 1) 
-
-
-
-
-
-
-
-
-## [lder2_brm](../src/catirt.cpp#L465)
-
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 2nd derivative of log-likelihoods of reponses to items at given ability estimates 
-
-Port of: lder2.brm.R 
 
 
 
@@ -597,13 +575,11 @@ Port of: lder2.brm.R
 
 
 
-## [lder2_grm](../src/catirt.cpp#L493)
+## [wasm_lder2_grm](../src/catirt.cpp#L1169)
 
-**Type:** `const` `ArrayXXd`
+**Type:** `const` `JSMatrix`
 
 2nd derivative of log-likelihoods of reponses to items at given ability estimates 
-
-Port of: lder2.grm.R 
 
 
 
@@ -625,13 +601,11 @@ Port of: lder2.grm.R
 
 
 
-## [FI_brm](../src/catirt.cpp#L545)
+## [wasm_FI_brm](../src/catirt.cpp#L1210)
 
-**Type:** `const` `FI_Result`
+**Type:** `JSFI_Result`
 
 Fisher Information of BRM items for given ability estimates and optional responses (for OBSERVED info) 
-
-Port of: FI.brm.R 
 
 
 
@@ -641,8 +615,8 @@ Port of: FI.brm.R
 |-----|-----|
 |params|Parameters for M items (M x 3 matrix)|
 |theta|Ability estimates for N people|
-|type|FIType::EXPECTED or FIType::OBSERVED|
-|resp|Item responses (N people x M responses) should be size 0 for FIType::EXPECTED |
+|type|FIType.EXPECTED or FIType.OBSERVED|
+|resp|Item responses (N people x M responses) should be size 0 for FIType.EXPECTED |
 
 
 **Returned Value:** FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info 
@@ -654,13 +628,11 @@ Port of: FI.brm.R
 
 
 
-## [FI_grm](../src/catirt.cpp#L601)
+## [wasm_FI_grm](../src/catirt.cpp#L1225)
 
-**Type:** `const` `FI_Result`
+**Type:** `JSFI_Result`
 
 Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info) 
-
-Port of: FI.grm.R 
 
 
 
@@ -670,8 +642,8 @@ Port of: FI.grm.R
 |-----|-----|
 |params|Parameters for M items (M x K matrix) where K is number of categories|
 |theta|Ability estimates for N people|
-|type|FIType::EXPECTED or FIType::OBSERVED|
-|resp|Item responses (N people x M responses) should be size 0 for FIType::EXPECTED |
+|type|FIType.EXPECTED or FIType.OBSERVED|
+|resp|Item responses (N people x M responses) should be size 0 for FIType.EXPECTED |
 
 
 **Returned Value:** FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info 
@@ -683,15 +655,11 @@ Port of: FI.grm.R
 
 
 
-## [uniroot_lder1](../src/catirt.cpp#L672)
+## [wasm_uniroot_lder1](../src/catirt.cpp#L1240)
 
 **Type:** `Uniroot_Result`
 
-Search the range interval for a root of the specificed lder1 function with respect to theta 
-
-Combined port of: uniroot and R_zeroin2, Copyright (C) 1999-2016 The R Core Team 
-https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/R/nlm.R#L55 
-https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/src/zeroin.c 
+Search the range interval for a root of the specificed BRM or GRM lder1 function with respect to theta 
 
 
 
@@ -699,13 +667,11 @@ https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750
 
 |Parameter Name|Description|
 |-----|-----|
-|lderFP|Pointer to lder1_brm or lder1_grm functions|
 |range|Interval to search: should be [-X,+X] for some positive X|
 |resp|Item responses for a single person (1 x M)|
 |params|Parameters for M items (M x K matrix)|
-|type|LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)|
-|maxit|Maximum number of iterations for search (default: 1000)|
-|tol|Acceptable tolerance level (default: EPSILON^0.25) |
+|type|LderType.WLE (weighted likelihood) or LderType.MLE (maximum likelihood)|
+|model|ModelType.BRM or ModelType.GRM |
 
 
 **Returned Value:** Uniroot_Result with iter=-1 if a root did not converge within max iterations 
@@ -717,13 +683,11 @@ https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750
 
 
 
-## [wleEst](../src/catirt.cpp#L855)
+## [wasm_wleEst](../src/catirt.cpp#L1281)
 
-**Type:** `const` `Est_Result`
+**Type:** `JSEst_Result`
 
 Estimate ability from one or more sets of item responses 
-
-Port of: wleEst.R 
 
 
 
@@ -734,7 +698,7 @@ Port of: wleEst.R
 |resp|Item responses (N people x M responses) should be size 0 for FIType::EXPECTED|
 |params|Parameters for M items (M x K matrix)|
 |range|Range of abilities to explore (2 x 1)|
-|type|ModelType::BRM or ModelType::GRM |
+|type|ModelType.BRM or ModelType.GRM |
 
 
 **Returned Value:** Est_Result with theta (Nx1), info (Nx1), and sem (Nx1) info 

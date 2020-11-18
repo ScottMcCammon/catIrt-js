@@ -39,8 +39,8 @@ describe('catIrt webasm', function () {
   });
 
   // define test suite
-  describe('p_brm:', function () {
-    it('p_brm(theta, params)', function () {
+  describe('wasm_p_brm:', function () {
+    it('wasm_p_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::p.brm(theta, params)`
       const expected = [
         [0.7454547, 0.1714823, 0.2016578, 0.1452349, 0.1621502],
@@ -49,7 +49,7 @@ describe('catIrt webasm', function () {
 
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.p_brm(mTheta, mParams);
+      const res = catirtlib.wasm_p_brm(mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -60,8 +60,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('p_grm:', function () {
-    it('p_grm(theta, params)', function () {
+  describe('wasm_p_grm:', function () {
+    it('wasm_p_grm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::p.grm(theta, params)`
       const expected = [
         [0.289256041, 0.941497379, 0.90720705,  0.97132401,  0.95210207],
@@ -74,7 +74,7 @@ describe('catIrt webasm', function () {
 
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.p_grm(mTheta, mParams);
+      const res = catirtlib.wasm_p_grm(mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -85,8 +85,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('pder1_brm:', function () {
-    it('pder1_brm(theta, params)', function () {
+  describe('wasm_pder1_brm:', function () {
+    it('wasm_pder1_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder1.brm(theta, params)`
       const expected = [
         [0.280420646, 0.14638078, 0.1407530, 0.05049314, 0.05939428],
@@ -95,7 +95,7 @@ describe('catIrt webasm', function () {
 
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.pder1_brm(mTheta, mParams);
+      const res = catirtlib.wasm_pder1_brm(mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -106,8 +106,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('pder1_grm:', function () {
-    it('pder1_grm(theta, params)', function () {
+  describe('wasm_pder1_grm:', function () {
+    it('wasm_pder1_grm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder1.grm(theta, params)`
       const expected = [
         [-0.31865982, -0.16634180, -0.15994660, -0.05737857, -0.0674935],
@@ -120,7 +120,7 @@ describe('catIrt webasm', function () {
 
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.pder1_grm(mTheta, mParams);
+      const res = catirtlib.wasm_pder1_grm(mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -131,8 +131,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('pder2_brm:', function () {
-    it('pder2_brm(theta, params)', function () {
+  describe('wasm_pder2_brm:', function () {
+    it('wasm_pder2_brm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder2.brm(theta, params)`
       const expected = [
         [-0.18320057,  0.39034545,  0.2177993,  0.09805036,  0.07948274],
@@ -141,7 +141,7 @@ describe('catIrt webasm', function () {
 
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.pder2_brm(mTheta, mParams);
+      const res = catirtlib.wasm_pder2_brm(mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -152,8 +152,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('pder2_grm:', function () {
-    it('pder2_grm(theta, params)', function () {
+  describe('wasm_pder2_grm:', function () {
+    it('wasm_pder2_grm(theta, params)', function () {
       // expected values from R equivalent: `catIrt::pder2.grm(theta, params)`
       const expected = [
         [ 0.20818246, -0.44357438, -0.24749925, -0.11142086, -0.090321296],
@@ -166,7 +166,7 @@ describe('catIrt webasm', function () {
 
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.pder2_grm(mTheta, mParams);
+      const res = catirtlib.wasm_pder2_grm(mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -177,15 +177,15 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('lder1_brm:', function () {
-    it('lder1_brm(u, theta, params, "MLE")', function () {
+  describe('wasm_lder1_brm:', function () {
+    it('wasm_lder1_brm(u, theta, params, "MLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='MLE')`
       const expected = [1.797812, -5.838820];
 
       const mResp = catirtlib.MatrixFromArray(uresp);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.lder1_brm(mResp, mTheta, mParams, catirtlib.LderType.MLE);
+      const res = catirtlib.wasm_lder1_brm(mResp, mTheta, mParams, catirtlib.LderType.MLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
@@ -196,14 +196,14 @@ describe('catIrt webasm', function () {
       res.delete();
     });
 
-    it('lder1_brm(u, theta, params, "WLE")', function () {
+    it('wasm_lder1_brm(u, theta, params, "WLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.brm(u, theta, params, type='WLE')`
       const expected = [2.067604, -6.474561];
 
       const mResp = catirtlib.MatrixFromArray(uresp);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.lder1_brm(mResp, mTheta, mParams, catirtlib.LderType.WLE);
+      const res = catirtlib.wasm_lder1_brm(mResp, mTheta, mParams, catirtlib.LderType.WLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
@@ -215,15 +215,15 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('lder1_grm:', function () {
-    it('lder1_grm(u, theta, params, "MLE")', function () {
+  describe('wasm_lder1_grm:', function () {
+    it('wasm_lder1_grm(u, theta, params, "MLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.grm(u, theta, params, type='MLE')`
       const expected = [3.408681, -4.796249];
 
       const mResp = catirtlib.MatrixFromArray(uresp_grm);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.lder1_grm(mResp, mTheta, mParams, catirtlib.LderType.MLE);
+      const res = catirtlib.wasm_lder1_grm(mResp, mTheta, mParams, catirtlib.LderType.MLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
@@ -234,14 +234,14 @@ describe('catIrt webasm', function () {
       res.delete();
     });
 
-    it('lder1_grm(u, theta, params, "WLE")', function () {
+    it('wasm_lder1_grm(u, theta, params, "WLE")', function () {
       // expected values from R equivalent: `catIrt::lder1.grm(u, theta, params, type='WLE')`
       const expected = [4.048207, -5.598181];
 
       const mResp = catirtlib.MatrixFromArray(uresp_grm);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.lder1_grm(mResp, mTheta, mParams, catirtlib.LderType.WLE);
+      const res = catirtlib.wasm_lder1_grm(mResp, mTheta, mParams, catirtlib.LderType.WLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
@@ -253,8 +253,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('lder2_brm:', function () {
-    it('lder2_brm(u, theta, params)', function () {
+  describe('wasm_lder2_brm:', function () {
+    it('wasm_lder2_brm(u, theta, params)', function () {
       // expected values from R equivalent: `catIrt::lder2.brm(u, theta, params)`
       const expected = [
         [-0.38726367,  1.54763399,  0.5928689, -0.1181999, -0.09989038],
@@ -264,7 +264,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray(uresp);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.lder2_brm(mResp, mTheta, mParams);
+      const res = catirtlib.wasm_lder2_brm(mResp, mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -276,8 +276,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('lder2_grm:', function () {
-    it('lder2_grm(u, theta, params)', function () {
+  describe('wasm_lder2_grm:', function () {
+    it('wasm_lder2_grm(u, theta, params)', function () {
       // expected values from R equivalent: `catIrt::lder2.grm(u, theta, params)`
       const expected = [
         [-0.4939227, -0.62417921, -0.3038985, -0.205088, -0.09989038],
@@ -287,7 +287,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray(uresp_grm);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.lder2_grm(mResp, mTheta, mParams);
+      const res = catirtlib.wasm_lder2_grm(mResp, mTheta, mParams);
 
       assert.strictEqual(format(catirtlib.MatrixToArray(res)), format(expected));
 
@@ -299,15 +299,15 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('logLik_grm:', function () {
-    it('logLik_grm(u, theta, params)', function () {
+  describe('wasm_logLik_grm:', function () {
+    it('wasm_logLik_grm(u, theta, params)', function () {
       // expected values from R equivalent: `catIrt::logLik.grm(u, theta, params)`
       const expected = [-7.466321, NaN];
 
       const mResp = catirtlib.MatrixFromArray(uresp_grm);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+      const res = catirtlib.wasm_logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
@@ -318,14 +318,14 @@ describe('catIrt webasm', function () {
       res.delete();
     });
 
-    it('logLik_grm(u[0], theta[0], params)', function () {
+    it('wasm_logLik_grm(u[0], theta[0], params)', function () {
       // expected values from R equivalent: `catIrt::logLik.grm(u, theta, params)`
       const expected = [-7.466321];
 
       const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([[theta[0]]]);
-      const res = catirtlib.logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+      const res = catirtlib.wasm_logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
@@ -336,14 +336,14 @@ describe('catIrt webasm', function () {
       res.delete();
     });
 
-    it('logLik_grm(u[0], theta, params)', function () {
+    it('wasm_logLik_grm(u[0], theta, params)', function () {
       // expected values from R equivalent: `catIrt::logLik.grm(u, theta, params)`
       const expected = [-7.466321, -12.8073];
 
       const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
-      const res = catirtlib.logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+      const res = catirtlib.wasm_logLik_grm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
 
@@ -355,8 +355,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('FI_brm:', function () {
-    it('FI_brm(params, theta, "EXPECTED")', function () {
+  describe('wasm_FI_brm:', function () {
+    it('wasm_FI_brm(params, theta, "EXPECTED")', function () {
       // expected values from R equivalent: `catIrt::FI.brm(params, theta, type="expected")`
       const expected = {
         type: catirtlib.FIType.EXPECTED,
@@ -371,7 +371,7 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
       const mResp = new catirtlib.Matrix(0, 0);
-      const res = catirtlib.FI_brm(mParams, mTheta, catirtlib.FIType.EXPECTED, mResp);
+      const res = catirtlib.wasm_FI_brm(mParams, mTheta, catirtlib.FIType.EXPECTED, mResp);
 
       assert.strictEqual(res.type, expected.type);
       assert.strictEqual(format(catirtlib.MatrixToArray(res.item)), format(expected.item));
@@ -387,7 +387,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('FI_brm(params, theta, "OBSERVED", resp)', function () {
+    it('wasm_FI_brm(params, theta, "OBSERVED", resp)', function () {
       // expected values from R equivalent: `catIrt::FI.brm(params, theta, type="observed", resp=resp)`
       const expected = {
         type: catirtlib.FIType.OBSERVED,
@@ -402,7 +402,7 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
       const mResp = catirtlib.MatrixFromArray(uresp);
-      const res = catirtlib.FI_brm(mParams, mTheta, catirtlib.FIType.OBSERVED, mResp);
+      const res = catirtlib.wasm_FI_brm(mParams, mTheta, catirtlib.FIType.OBSERVED, mResp);
 
       assert.strictEqual(res.type, expected.type);
       assert.strictEqual(format(catirtlib.MatrixToArray(res.item)), format(expected.item));
@@ -419,8 +419,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('FI_grm:', function () {
-    it('FI_grm(params, theta, "EXPECTED")', function () {
+  describe('wasm_FI_grm:', function () {
+    it('wasm_FI_grm(params, theta, "EXPECTED")', function () {
       // expected values from R equivalent: `catIrt::FI.grm(params, theta, type="expected")`
       const expected = {
         type: catirtlib.FIType.EXPECTED,
@@ -435,7 +435,7 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
       const mResp = new catirtlib.Matrix(0, 0);
-      const res = catirtlib.FI_grm(mParams, mTheta, catirtlib.FIType.EXPECTED, mResp);
+      const res = catirtlib.wasm_FI_grm(mParams, mTheta, catirtlib.FIType.EXPECTED, mResp);
 
       assert.strictEqual(res.type, expected.type);
       assert.strictEqual(format(catirtlib.MatrixToArray(res.item)), format(expected.item));
@@ -451,7 +451,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('FI_grm(params, theta, "OBSERVED", resp)', function () {
+    it('wasm_FI_grm(params, theta, "OBSERVED", resp)', function () {
       // expected values from R equivalent: `catIrt::FI.grm(params, theta, type="observed", resp=resp)`
       const expected = {
         type: catirtlib.FIType.OBSERVED,
@@ -466,7 +466,7 @@ describe('catIrt webasm', function () {
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mTheta = catirtlib.MatrixFromArray([theta]);
       const mResp = catirtlib.MatrixFromArray(uresp_grm);
-      const res = catirtlib.FI_grm(mParams, mTheta, catirtlib.FIType.OBSERVED, mResp);
+      const res = catirtlib.wasm_FI_grm(mParams, mTheta, catirtlib.FIType.OBSERVED, mResp);
 
       assert.strictEqual(res.type, expected.type);
       assert.strictEqual(format(catirtlib.MatrixToArray(res.item)), format(expected.item));
@@ -483,8 +483,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('uniroot_lder1:', function () {
-    it('uniroot_lder1(range, uresp[0], params, "WLE", "BRM")', function () {
+  describe('wasm_uniroot_lder1:', function () {
+    it('wasm_uniroot_lder1(range, uresp[0], params, "WLE", "BRM")', function () {
       const expected = {
         root: 0.02317778,
         f_root: -1.406347e-05,
@@ -495,7 +495,7 @@ describe('catIrt webasm', function () {
       const mRange = catirtlib.MatrixFromArray([range]);
       const mResp = catirtlib.MatrixFromArray([uresp[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
-      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
+      const res = catirtlib.wasm_uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
 
       assert.strictEqual(format(res.root), format(expected.root));
       assert.strictEqual(format(res.f_root), format(expected.f_root));
@@ -508,7 +508,7 @@ describe('catIrt webasm', function () {
       mParams.delete();
     });
 
-    it('uniroot_lder1(range, uresp[1], params, "WLE", "BRM")', function () {
+    it('wasm_uniroot_lder1(range, uresp[1], params, "WLE", "BRM")', function () {
       const expected = {
         root: -2.286811,
         f_root: 4.785281e-06,
@@ -519,7 +519,7 @@ describe('catIrt webasm', function () {
       const mRange = catirtlib.MatrixFromArray([range]);
       const mResp = catirtlib.MatrixFromArray([uresp[1]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
-      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
+      const res = catirtlib.wasm_uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.BRM);
 
       assert.strictEqual(format(res.root), format(expected.root));
       assert.strictEqual(format(res.f_root), format(expected.f_root));
@@ -532,7 +532,7 @@ describe('catIrt webasm', function () {
       mParams.delete();
     });
 
-    it('uniroot_lder1(range, uresp_grm[0], params, "WLE", "GRM")', function () {
+    it('wasm_uniroot_lder1(range, uresp_grm[0], params, "WLE", "GRM")', function () {
       const expected = {
         root: -0.3175944,
         f_root: -6.413003e-06,
@@ -543,7 +543,7 @@ describe('catIrt webasm', function () {
       const mRange = catirtlib.MatrixFromArray([range]);
       const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
-      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.GRM);
+      const res = catirtlib.wasm_uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.GRM);
 
       assert.strictEqual(format(res.root), format(expected.root));
       assert.strictEqual(format(res.f_root), format(expected.f_root));
@@ -556,7 +556,7 @@ describe('catIrt webasm', function () {
       mParams.delete();
     });
 
-    it('uniroot_lder1(range, uresp_grm[1], params, "WLE", "GRM")', function () {
+    it('wasm_uniroot_lder1(range, uresp_grm[1], params, "WLE", "GRM")', function () {
       const expected = {
         root: -0.04421021,
         f_root: -7.230714e-06,
@@ -567,7 +567,7 @@ describe('catIrt webasm', function () {
       const mRange = catirtlib.MatrixFromArray([range]);
       const mResp = catirtlib.MatrixFromArray([uresp_grm[1]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
-      const res = catirtlib.uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.GRM);
+      const res = catirtlib.wasm_uniroot_lder1(mRange, mResp, mParams, catirtlib.LderType.WLE, catirtlib.ModelType.GRM);
 
       assert.strictEqual(format(res.root), format(expected.root));
       assert.strictEqual(format(res.f_root), format(expected.f_root));
@@ -581,8 +581,8 @@ describe('catIrt webasm', function () {
     });
   });
 
-  describe('wleEst:', function () {
-    it('wleEst(uresp[0], params, range, "BRM")', function () {
+  describe('wasm_wleEst:', function () {
+    it('wasm_wleEst(uresp[0], params, range, "BRM")', function () {
       const expected = {
         theta: [0.02317778],
         info: [3.341271],
@@ -592,7 +592,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray([uresp[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
-      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
+      const res = catirtlib.wasm_wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
@@ -607,7 +607,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('wleEst(uresp[1], params, range, "BRM")', function () {
+    it('wasm_wleEst(uresp[1], params, range, "BRM")', function () {
       const expected = {
         theta: [-2.28681109],
         info: [0.1233062],
@@ -617,7 +617,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray([uresp[1]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
-      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
+      const res = catirtlib.wasm_wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
@@ -632,7 +632,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('wleEst(uresp, params, range, "BRM")', function () {
+    it('wasm_wleEst(uresp, params, range, "BRM")', function () {
       const expected = {
         theta: [0.02317778, -2.28681109],
         info: [3.341271, 0.1233062],
@@ -642,7 +642,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray(uresp);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
-      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
+      const res = catirtlib.wasm_wleEst(mResp, mParams, mRange, catirtlib.ModelType.BRM);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
@@ -657,7 +657,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('wleEst(uresp_grm[0], params, range, "GRM")', function () {
+    it('wasm_wleEst(uresp_grm[0], params, range, "GRM")', function () {
       const expected = {
         theta: [-0.3175944],
         info: [6.011785],
@@ -667,7 +667,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray([uresp_grm[0]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
-      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
+      const res = catirtlib.wasm_wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
@@ -682,7 +682,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('wleEst(uresp_grm[1], params, range, "GRM")', function () {
+    it('wasm_wleEst(uresp_grm[1], params, range, "GRM")', function () {
       const expected = {
         theta: [-0.04421021],
         info: [5.352786],
@@ -692,7 +692,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray([uresp_grm[1]]);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
-      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
+      const res = catirtlib.wasm_wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));
@@ -707,7 +707,7 @@ describe('catIrt webasm', function () {
       res.sem.delete();
     });
 
-    it('wleEst(uresp_grm, params, range, "GRM")', function () {
+    it('wasm_wleEst(uresp_grm, params, range, "GRM")', function () {
       const expected = {
         theta: [-0.3175944, -0.04421021],
         info: [6.011785, 5.352786],
@@ -717,7 +717,7 @@ describe('catIrt webasm', function () {
       const mResp = catirtlib.MatrixFromArray(uresp_grm);
       const mParams = catirtlib.MatrixFromArray(itemparams);
       const mRange = catirtlib.MatrixFromArray([range]);
-      const res = catirtlib.wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
+      const res = catirtlib.wasm_wleEst(mResp, mParams, mRange, catirtlib.ModelType.GRM);
 
       assert.strictEqual(format(catirtlib.VectorToArray(res.theta)), format(expected.theta));
       assert.strictEqual(format(catirtlib.VectorToArray(res.info)), format(expected.info));

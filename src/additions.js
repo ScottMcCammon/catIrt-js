@@ -100,7 +100,7 @@ Module.wleEst_brm_one = function(resp, params, range=[-4.5, 4.5]) {
   const mResp = Module.MatrixFromArray([resp]);
   const mParams = Module.MatrixFromArray(params);
   const mRange = Module.MatrixFromArray([range]);
-  const est = Module.wleEst(mResp, mParams, mRange, Module.ModelType.BRM);
+  const est = Module.wasm_wleEst(mResp, mParams, mRange, Module.ModelType.BRM);
 
   result.theta = est.theta.get(0);
   result.info = est.info.get(0);
@@ -154,7 +154,7 @@ Module.wleEst_grm_one = function(resp, params, range=[-4.5, 4.5]) {
   const mResp = Module.MatrixFromArray([resp]);
   const mParams = Module.MatrixFromArray(params);
   const mRange = Module.MatrixFromArray([range]);
-  const est = Module.wleEst(mResp, mParams, mRange, Module.ModelType.GRM);
+  const est = Module.wasm_wleEst(mResp, mParams, mRange, Module.ModelType.GRM);
 
   result.theta = est.theta.get(0);
   result.info = est.info.get(0);
@@ -198,7 +198,7 @@ Module.FI_brm_expected_one = function(params, theta) {
   const mParams = Module.MatrixFromArray(params);
   const mTheta = Module.MatrixFromArray([[theta]]);
   const mResp = new Module.Matrix(0, 0);
-  const res = Module.FI_brm(mParams, mTheta, Module.FIType.EXPECTED, mResp);
+  const res = Module.wasm_FI_brm(mParams, mTheta, Module.FIType.EXPECTED, mResp);
 
   for (let i = 0; i < res.item.cols(); i++) {
     result.item.push(res.item.get(0, i));
@@ -244,7 +244,7 @@ Module.FI_grm_expected_one = function(params, theta) {
   const mParams = Module.MatrixFromArray(params);
   const mTheta = Module.MatrixFromArray([[theta]]);
   const mResp = new Module.Matrix(0, 0);
-  const res = Module.FI_grm(mParams, mTheta, Module.FIType.EXPECTED, mResp);
+  const res = Module.wasm_FI_grm(mParams, mTheta, Module.FIType.EXPECTED, mResp);
 
   for (let i = 0; i < res.item.cols(); i++) {
     result.item.push(res.item.get(0, i));
@@ -360,7 +360,7 @@ Module.termGLR_one = function(params, resp, options={}) {
   const mResp = Module.MatrixFromArray([resp]);
   const mParams = Module.MatrixFromArray(params);
   const mTheta = Module.MatrixFromArray([theta]);
-  const res = Module.logLik_grm(mResp, mTheta, mParams, Module.LogLikType.MLE);
+  const res = Module.wasm_logLik_grm(mResp, mTheta, mParams, Module.LogLikType.MLE);
 
   const likVals = Module.VectorToArray(res);
 

@@ -28,7 +28,7 @@ using namespace Eigen;
 
 using Vector = std::vector<double>;
 
-/**
+/**MDJAVADOC_SKIP
  * Generate the BRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: p.brm.R
@@ -66,7 +66,7 @@ const ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>&
   return P;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Generate the item GRM probability matrix for person(s) with given ability estimates
  *
  * Port of: p.grm.R
@@ -111,7 +111,7 @@ const ArrayXXd p_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>&
   return P;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Derivative of the BRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: pder1.brm.R
@@ -151,7 +151,7 @@ const ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
   return Pd1;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Derivative of the GRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: pder1.grm.R
@@ -197,7 +197,7 @@ const ArrayXXd pder1_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
   return Pd1;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * 2nd derivative of the BRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: pder2.brm.R
@@ -239,7 +239,7 @@ const ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
   return Pd2;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * 2nd derivative of the GRM item probability matrix for person(s) with given ability estimates
  *
  * Port of: pder2.grm.R
@@ -286,7 +286,7 @@ const ArrayXXd pder2_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
   return Pd2;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Derivative of log-likelihoods of reponses to items at given ability estimates
  *
  * Port of: lder1.brm.R
@@ -333,7 +333,7 @@ const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>&
   return lder1.rowwise().sum();
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Select item/category likelihoods
  *
  * Port of: sel.prm in ExtractOperators.R
@@ -385,7 +385,7 @@ const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>&
   return lik;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Log-likelihoods of reponses to items at given ability estimates
  *
  * Port of: lokLik.grm.R
@@ -412,7 +412,7 @@ const ArrayXd logLik_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>
   return logLik.rowwise().sum();
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Derivative of log-likelihoods of reponses to items at given ability estimates
  *
  * Port of: lder1.grm.R
@@ -461,7 +461,7 @@ const ArrayXd lder1_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>&
   return lder1.rowwise().sum();
 }
 
-/**
+/**MDJAVADOC_SKIP
  * 2nd derivative of log-likelihoods of reponses to items at given ability estimates
  *
  * Port of: lder2.brm.R
@@ -489,7 +489,7 @@ const ArrayXXd lder2_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>
   return ((u * lder2_1) - ((1 - u) * lder2_2));
 }
 
-/**
+/**MDJAVADOC_SKIP
  * 2nd derivative of log-likelihoods of reponses to items at given ability estimates
  *
  * Port of: lder2.grm.R
@@ -541,7 +541,7 @@ struct FI_Result
     }
 };
 
-/**
+/**MDJAVADOC_SKIP
  * Fisher Information of BRM items for given ability estimates and optional responses (for OBSERVED info)
  *
  * Port of: FI.brm.R
@@ -597,7 +597,7 @@ const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const Array
   return result;
 }
 
-/**
+/**MDJAVADOC_SKIP
  * Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info)
  *
  * Port of: FI.grm.R
@@ -668,7 +668,7 @@ struct Uniroot_Result
     double estim_prec;
 };
 
-/**
+/**MDJAVADOC_SKIP
  * Search the range interval for a root of the specificed lder1 function with respect to theta
  *
  * Combined port of: uniroot and R_zeroin2, Copyright (C) 1999-2016  The R Core Team 
@@ -851,7 +851,7 @@ struct Est_Result
     }
 };
 
-/**
+/**MDJAVADOC_SKIP
  * Estimate ability from one or more sets of item responses
  *
  * Port of: wleEst.R
@@ -1014,62 +1014,167 @@ public:
     }
 };
 
-const JSMatrix embind_p_brm(const JSMatrix *theta, const JSMatrix *params)
+/**
+ * Generate the BRM item probability matrix for person(s) with given ability estimates
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
+ *
+ * @return person/item probability matrix (N x M) for N people and M items
+ */
+const JSMatrix wasm_p_brm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(p_brm(theta->toEigen(), params->toEigen()));
 }
 
-const JSMatrix embind_p_grm(const JSMatrix *theta, const JSMatrix *params)
+/**
+ * Generate the item GRM probability matrix for person(s) with given ability estimates
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return person/item probability matrix ((N*K) x M) for N people, K categories, and M items
+ */
+const JSMatrix wasm_p_grm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(p_grm(theta->toEigen(), params->toEigen()));
 }
 
-const JSMatrix embind_pder1_brm(const JSMatrix *theta, const JSMatrix *params)
+/**
+ * Derivative of the BRM item probability matrix for person(s) with given ability estimates
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
+ *
+ * @return person/item derivative probability matrix (N x M) for N people and M items
+ */
+const JSMatrix wasm_pder1_brm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(pder1_brm(theta->toEigen(), params->toEigen()));
 }
 
-const JSMatrix embind_pder1_grm(const JSMatrix *theta, const JSMatrix *params)
+/**
+ * Derivative of the GRM item probability matrix for person(s) with given ability estimates
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return person/item derivative probability matrix ((N*K) x M) for N people, K categories, and M items
+ */
+const JSMatrix wasm_pder1_grm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(pder1_grm(theta->toEigen(), params->toEigen()));
 }
 
-const JSMatrix embind_pder2_brm(const JSMatrix *theta, const JSMatrix *params)
+/**
+ * 2nd derivative of the BRM item probability matrix for person(s) with given ability estimates
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
+ *
+ * @return person/item 2nd derivative probability matrix (N x M) for N people and M items
+ */
+const JSMatrix wasm_pder2_brm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(pder2_brm(theta->toEigen(), params->toEigen()));
 }
 
-const JSMatrix embind_pder2_grm(const JSMatrix *theta, const JSMatrix *params)
+/**
+ * 2nd derivative of the GRM item probability matrix for person(s) with given ability estimates
+ *
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return person/item 2nd derivative probability matrix ((N*K) x M) for N people, K categories, and M items
+ */
+const JSMatrix wasm_pder2_grm(const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(pder2_grm(theta->toEigen(), params->toEigen()));
 }
 
-const Vector embind_lder1_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
+/**
+ * Derivative of log-likelihoods of reponses to items at given ability estimates
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
+ * @param type        LderType.WLE (weighted likelihood) or LderType.MLE (maximum likelihood)
+ *
+ * @return derivative of log-likelihood for each person - vector (N x 1)
+ */
+const Vector wasm_lder1_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
 {
   return VectorFromMatrix(lder1_brm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
 }
 
-const Vector embind_lder1_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
+/**
+ * Derivative of log-likelihoods of reponses to items at given ability estimates
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ * @param type        LderType.WLE (weighted likelihood) or LderType.MLE (maximum likelihood)
+ *
+ * @return derivative of log-likelihood for each person/category - vector (N x 1)
+ */
+const Vector wasm_lder1_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LderType type)
 {
   return VectorFromMatrix(lder1_grm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
 }
 
-const Vector embind_logLik_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LogLikType type)
+/**
+ * Log-likelihoods of reponses to items at given ability estimates
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people (or T thetas if N people is 1)
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ * @param type        LogLikType.MLE (LogLikType.BME not yet supported)
+ *
+ * @return log-likelihood for each person - vector (N x 1)
+ */
+const Vector wasm_logLik_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LogLikType type)
 {
   return VectorFromMatrix(logLik_grm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
 }
 
-const JSMatrix embind_sel_prm(const JSMatrix *p, const JSMatrix *u, int K)
+/**
+ * Select item/category likelihoods
+ *
+ * @param p ((M*K) x J) likelihood values for all categories / various thetas
+ * @param u Item responses (N people x J responses)
+ * @param K number of categories
+ *
+ * @return (T x J) matrix - item likelihoods where T = {N, for N>1; M, for N=1}
+ */
+const JSMatrix wasm_sel_prm(const JSMatrix *p, const JSMatrix *u, int K)
 {
   return JSMatrix(sel_prm(p->toEigen(), u->toEigen(), K));
 }
 
-const JSMatrix embind_lder2_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
+/**
+ * 2nd derivative of log-likelihoods of reponses to items at given ability estimates
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x 3 matrix)
+ *
+ * @return 2nd derivative of log-likelihood for each person - vector (N x M)
+ */
+const JSMatrix wasm_lder2_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(lder2_brm(u->toEigen(), theta->toEigen(), params->toEigen()));
 }
 
-const JSMatrix embind_lder2_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
+/**
+ * 2nd derivative of log-likelihoods of reponses to items at given ability estimates
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ *
+ * @return 2nd derivative of log-likelihood for each person - vector (N x M)
+ */
+const JSMatrix wasm_lder2_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params)
 {
   return JSMatrix(lder2_grm(u->toEigen(), theta->toEigen(), params->toEigen()));
 }
@@ -1101,17 +1206,48 @@ struct JSFI_Result
     }
 };
 
-JSFI_Result embind_FI_brm(const JSMatrix *params, const JSMatrix *theta, FIType type, const JSMatrix *resp)
+/**
+ * Fisher Information of BRM items for given ability estimates and optional responses (for OBSERVED info)
+ *
+ * @param params      Parameters for M items (M x 3 matrix)
+ * @param theta       Ability estimates for N people
+ * @param type        FIType.EXPECTED or FIType.OBSERVED
+ * @param resp        Item responses (N people x M responses) should be size 0 for FIType.EXPECTED
+ *
+ * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
+ */
+JSFI_Result wasm_FI_brm(const JSMatrix *params, const JSMatrix *theta, FIType type, const JSMatrix *resp)
 {
   return JSFI_Result(FI_brm(params->toEigen(), theta->toEigen(), type, resp->toEigen()));
 }
 
-JSFI_Result embind_FI_grm(const JSMatrix *params, const JSMatrix *theta, FIType type, const JSMatrix *resp)
+/**
+ * Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info)
+ *
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ * @param theta       Ability estimates for N people
+ * @param type        FIType.EXPECTED or FIType.OBSERVED
+ * @param resp        Item responses (N people x M responses) should be size 0 for FIType.EXPECTED
+ *
+ * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
+ */
+JSFI_Result wasm_FI_grm(const JSMatrix *params, const JSMatrix *theta, FIType type, const JSMatrix *resp)
 {
   return JSFI_Result(FI_grm(params->toEigen(), theta->toEigen(), type, resp->toEigen()));
 }
 
-Uniroot_Result embind_uniroot_lder1(const JSMatrix *range, const JSMatrix *resp, const JSMatrix *params, LderType type, ModelType model)
+/**
+ * Search the range interval for a root of the specificed BRM or GRM lder1 function with respect to theta
+ *
+ * @param range       Interval to search: should be [-X,+X] for some positive X
+ * @param resp        Item responses for a single person (1 x M)
+ * @param params      Parameters for M items (M x K matrix)
+ * @param type        LderType.WLE (weighted likelihood) or LderType.MLE (maximum likelihood)
+ * @param model       ModelType.BRM or ModelType.GRM
+ *
+ * @return Uniroot_Result with iter=-1 if a root did not converge within max iterations
+ */
+Uniroot_Result wasm_uniroot_lder1(const JSMatrix *range, const JSMatrix *resp, const JSMatrix *params, LderType type, ModelType model)
 {
     const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayXXd>&, LderType);
 
@@ -1141,7 +1277,17 @@ struct JSEst_Result
     }
 };
 
-JSEst_Result embind_wleEst(const JSMatrix *resp, const JSMatrix *params, const JSMatrix *range, ModelType type)
+/**
+ * Estimate ability from one or more sets of item responses
+ *
+ * @param resp        Item responses (N people x M responses) should be size 0 for FIType::EXPECTED
+ * @param params      Parameters for M items (M x K matrix)
+ * @param range       Range of abilities to explore (2 x 1)
+ * @param type        ModelType.BRM or ModelType.GRM
+ *
+ * @return Est_Result with theta (Nx1), info (Nx1), and sem (Nx1) info
+ */
+JSEst_Result wasm_wleEst(const JSMatrix *resp, const JSMatrix *params, const JSMatrix *range, ModelType type)
 {
   return JSEst_Result(wleEst(resp->toEigen(), params->toEigen(), range->toEigen(), type));
 }
@@ -1201,22 +1347,22 @@ EMSCRIPTEN_BINDINGS(Module)
         .function("set", &JSMatrix::set)
         ;
 
-    function("p_brm", &embind_p_brm, allow_raw_pointers());
-    function("p_grm", &embind_p_grm, allow_raw_pointers());
-    function("pder1_brm", &embind_pder1_brm, allow_raw_pointers());
-    function("pder1_grm", &embind_pder1_grm, allow_raw_pointers());
-    function("pder2_brm", &embind_pder2_brm, allow_raw_pointers());
-    function("pder2_grm", &embind_pder2_grm, allow_raw_pointers());
-    function("lder1_brm", &embind_lder1_brm, allow_raw_pointers());
-    function("sel_prm", &embind_sel_prm, allow_raw_pointers());
-    function("logLik_grm", &embind_logLik_grm, allow_raw_pointers());
-    function("lder1_grm", &embind_lder1_grm, allow_raw_pointers());
-    function("lder2_brm", &embind_lder2_brm, allow_raw_pointers());
-    function("lder2_grm", &embind_lder2_grm, allow_raw_pointers());
-    function("FI_brm", &embind_FI_brm, allow_raw_pointers());
-    function("FI_grm", &embind_FI_grm, allow_raw_pointers());
-    function("uniroot_lder1", &embind_uniroot_lder1, allow_raw_pointers());
-    function("wleEst", &embind_wleEst, allow_raw_pointers());
+    function("wasm_p_brm", &wasm_p_brm, allow_raw_pointers());
+    function("wasm_p_grm", &wasm_p_grm, allow_raw_pointers());
+    function("wasm_pder1_brm", &wasm_pder1_brm, allow_raw_pointers());
+    function("wasm_pder1_grm", &wasm_pder1_grm, allow_raw_pointers());
+    function("wasm_pder2_brm", &wasm_pder2_brm, allow_raw_pointers());
+    function("wasm_pder2_grm", &wasm_pder2_grm, allow_raw_pointers());
+    function("wasm_lder1_brm", &wasm_lder1_brm, allow_raw_pointers());
+    function("wasm_sel_prm", &wasm_sel_prm, allow_raw_pointers());
+    function("wasm_logLik_grm", &wasm_logLik_grm, allow_raw_pointers());
+    function("wasm_lder1_grm", &wasm_lder1_grm, allow_raw_pointers());
+    function("wasm_lder2_brm", &wasm_lder2_brm, allow_raw_pointers());
+    function("wasm_lder2_grm", &wasm_lder2_grm, allow_raw_pointers());
+    function("wasm_FI_brm", &wasm_FI_brm, allow_raw_pointers());
+    function("wasm_FI_grm", &wasm_FI_grm, allow_raw_pointers());
+    function("wasm_uniroot_lder1", &wasm_uniroot_lder1, allow_raw_pointers());
+    function("wasm_wleEst", &wasm_wleEst, allow_raw_pointers());
 }
 
 /*******************************************
