@@ -1,4 +1,12 @@
-Module['MatrixFromArray'] = function(arr) {
+
+/**
+ * Convert a 2D array to a Matrix object on the webasm shared buffer
+ *
+ * @param arr 2D JavaScript array containing numeric or NaN values
+ *
+ * @return Matrix object - caller frees via obj.delete()
+ */
+Module.MatrixFromArray = function(arr) {
   if (arr.length === 0) {
     return new Module.Matrix(0, 0);
   }
@@ -17,7 +25,14 @@ Module['MatrixFromArray'] = function(arr) {
   return m;
 };
 
-Module['MatrixToArray'] = function(m) {
+/**
+ * Convert a Matrix object to a 2D JavaScript array
+ *
+ * @param m Matrix object on the webasm shared buffer
+ *
+ * @return array
+ */
+Module.MatrixToArray = function(m) {
   const res = [];
   for (let i = 0; i < m.rows(); i++) {
     res.push([]);
@@ -28,7 +43,14 @@ Module['MatrixToArray'] = function(m) {
   return res;
 };
 
-Module['VectorToArray'] = function(v) {
+/**
+ * Convert a Vector object to a JavaScript array
+ *
+ * @param v Vector object on the webasm shared buffer
+ *
+ * @return array
+ */
+Module.VectorToArray = function(v) {
   const res = [];
   for (let i = 0; i < v.size(); i++) {
     res.push(v.get(i));
@@ -36,7 +58,16 @@ Module['VectorToArray'] = function(v) {
   return res;
 };
 
-Module['wleEst_brm_one'] = function(resp, params, range=[-4.5, 4.5]) {
+/**
+ * Compute an ability estimate using the binary response model
+ *
+ * @param resp   Array of N response values (1=correct, 0=incorrect)
+ * @param params 2D array (Nx3) of item parameters
+ * @param range  Array (2-tuple) range to limit computed theta within
+ *
+ * @return object with "theta", "info", and "sem" properties. Or a single "error" property
+ */
+Module.wleEst_brm_one = function(resp, params, range=[-4.5, 4.5]) {
   if (!(Array.isArray(resp) && resp.length)) {
     return {
       error: 'response must be a non-empty array'
@@ -45,6 +76,11 @@ Module['wleEst_brm_one'] = function(resp, params, range=[-4.5, 4.5]) {
   if (!(Array.isArray(params) && params.length)) {
     return {
       error: 'params must be a non-empty array'
+    };
+  }
+  if (!(Array.isArray(params[0]) && params[0].length === 3)) {
+    return {
+      error: 'each params array must be of length 3'
     };
   }
   if (!(resp.length === params.length)) {
@@ -81,7 +117,16 @@ Module['wleEst_brm_one'] = function(resp, params, range=[-4.5, 4.5]) {
   return result;
 };
 
-Module['wleEst_grm_one'] = function(resp, params, range=[-4.5, 4.5]) {
+/**
+ * Compute an ability estimate using a graded response model of M categories
+ *
+ * @param resp   Array of N response values ranging from (1 to M)
+ * @param params 2D array (NxM) of item parameters
+ * @param range  Array (2-tuple) range to limit computed theta within. [-4.5, 4.5] by default
+ *
+ * @return object with "theta", "info", and "sem" properties. Or a single "error" property
+ */
+Module.wleEst_grm_one = function(resp, params, range=[-4.5, 4.5]) {
   if (!(Array.isArray(resp) && resp.length)) {
     return {
       error: 'response must be a non-empty array'
@@ -126,7 +171,15 @@ Module['wleEst_grm_one'] = function(resp, params, range=[-4.5, 4.5]) {
   return result;
 };
 
-Module['FI_brm_expected_one'] = function(params, theta) {
+/**
+ * Compute expected Fisher Information values for a set of items using the binary response model
+ *
+ * @param params 2D array (Nx3) of item parameters
+ * @param theta  a single ability estimate
+ *
+ * @return object with "item", "test", and "sem" properties. Or a single "error" property
+ */
+Module.FI_brm_expected_one = function(params, theta) {
   if (!(Array.isArray(params) && params.length)) {
     return {
       error: 'params must be a non-empty array'
@@ -164,7 +217,15 @@ Module['FI_brm_expected_one'] = function(params, theta) {
   return result;
 };
 
-Module['FI_grm_expected_one'] = function(params, theta) {
+/**
+ * Compute expected Fisher Information values for a set of items using a graded response model of M categories
+ *
+ * @param params 2D array (NxM) of item parameters
+ * @param theta  a single ability estimate
+ *
+ * @return object with "item", "test", and "sem" properties. Or a single "error" property
+ */
+Module.FI_grm_expected_one = function(params, theta) {
   if (!(Array.isArray(params) && params.length)) {
     return {
       error: 'params must be a non-empty array'
@@ -202,7 +263,26 @@ Module['FI_grm_expected_one'] = function(params, theta) {
   return result;
 };
 
-Module['termGLR_one'] = function(params, resp, options={}) {
+/**
+ * Attempt to classify respones to a GRM of N categories using the generalized likelihood ratio
+ *
+ * options defaults:
+ *  {
+ *      range:      [-4.5, 4.5], // range of theta values to analyze
+ *      bounds:     [-1, 1],     // likelihood boundaries (size N-1)
+ *      categories: [0, 1, 2],   // category labels that will be returned (size N)
+ *      delta:      0.1,         // defines size of indifference region
+ *      alpha:      0.05,        // controls upper and lower likelihood threshold
+ *      beta:       0.05         // controls upper and lower likelihood threshold
+ *  }
+ *
+ * @param params  2D array (NxM) of item parameters
+ * @param resp    Array of N response values ranging from (1 to M)
+ * @param options Options object (see description above)
+ *
+ * @return options.category value OR NULL if unable to classify
+ */
+Module.termGLR_one = function(params, resp, options={}) {
   const defaults = {
     range: [-4.5, 4.5],
     bounds: [-1, 1],
@@ -344,7 +424,24 @@ if (typeof Array.prototype.shuffle === 'undefined') {
   });
 }
 
-Module['itChoose'] = function(from_items, model, select, at, options={}) {
+/**
+ * Choose optimal item(s) for test administration
+ *
+ * options defaults:
+ *  {
+ *      numb:     1,    // number of items to randomly select from top N
+ *      n_select: 1,    // top N items to consider
+ *      cat_theta: null // estimated ability of respondant
+ *  }
+ *
+ * @param from_items Array of item objects to choose from (with id and params properties)
+ * @param model      'brm' or 'grm'
+ * @param select     Item information function type. Currently only 'UW-FI' is supported
+ * @param at         Item selection parameter. Currently only 'theta' is supported.
+ *
+ * @return Object with 'items' array or 'error' string
+ */
+Module.itChoose = function(from_items, model, select, at, options={}) {
   const defaults = {
     numb: 1,
     n_select: 1,
@@ -507,21 +604,44 @@ Module['itChoose'] = function(from_items, model, select, at, options={}) {
   }
 };
 
-Module['getAnswers'] = function(resp) {
+/**
+ * Extract answers (i.e. finite values) from an array of responses
+ *
+ * @param resp Array NaN, Infinity, or numeric response values
+ *
+ * @return array Array of just the finite response values
+ */
+Module.getAnswers = function(resp) {
   if (!Array.isArray(resp)) {
     return [];
   }
   return resp.filter(r => Number.isFinite(r));
 }
 
-Module['getAnsweredItems'] = function(items, resp) {
+/**
+ * Filter array of items for those that have been answered
+ *
+ * @param items Array of N items
+ * @param resp Array of N response values
+ *
+ * @return array Array of items which have been answered (a finite response value is present)
+ */
+Module.getAnsweredItems = function(items, resp) {
   if (!Array.isArray(resp) || !Array.isArray(items) || items.length !== resp.length) {
     return [];
   }
   return items.filter((val, i) => Number.isFinite(resp[i]));
 }
 
-Module['getUnansweredItems'] = function(items, resp) {
+/**
+ * Filter array of items for those that have not been answered
+ *
+ * @param items Array of N items
+ * @param resp Array of N response values
+ *
+ * @return array Array of items which have not been answered (no finite response value present)
+ */
+Module.getUnansweredItems = function(items, resp) {
   if (!Array.isArray(resp) || !Array.isArray(items) || items.length !== resp.length) {
     return [];
   }

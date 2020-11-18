@@ -3,20 +3,22 @@
   "description": "CatIrt-js is a JavaScript / WebAssembly port of the [catIrt](https://github.com/swnydick/catIrt) R package",
   "homepage": "https://github.com/uomccammon/catIrt-js",
   "main": "./dist/catirt.js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "files": [
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
     "dist/catirt.js",
-    "dist/catirt.wasm"
+    "dist/catirt.wasm",
+    "docs/README.md"
   ],
   "engines": {
     "node": ">=10.0.0"
   },
   "scripts": {
     "build": "emcc -O3 --bind -I ./eigen ./src/catirt.cpp --pre-js ./src/additions.js -o ./dist/catirt.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='catirt_load'",
-    "test": "mocha --exclude 'test/manual*.js' --exit"
+    "test": "mocha --exclude 'test/manual*.js' --exit",
+    "docs": "mdjavadoc -o ./docs/ --dirfilter src && cat ./docs/src/additions.md | sed -e 's/^## \\[Module./## [/' > ./docs/README.md && cat ./docs/src/catirt.md >> ./docs/README.md && rm -rf ./docs/src"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,7 @@
   "license": "GPL-3.0-or-later",
   "devDependencies": {
     "mathjs": "^7.5.1",
+    "mdjavadoc": "^1.0.4",
     "mocha": "^8.1.3"
   }
 }

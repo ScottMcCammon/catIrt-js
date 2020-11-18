@@ -1,0 +1,748 @@
+## [MatrixFromArray](../src/additions.js#L3)
+
+Convert a 2D array to a Matrix object on the webasm shared buffer 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|arr|2D JavaScript array containing numeric or NaN values |
+
+
+**Returned Value:** Matrix object - caller frees via obj.delete() 
+
+
+
+
+
+
+
+
+## [MatrixToArray](../src/additions.js#L29)
+
+Convert a Matrix object to a 2D JavaScript array 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|m|Matrix object on the webasm shared buffer |
+
+
+**Returned Value:** array 
+
+
+
+
+
+
+
+
+## [VectorToArray](../src/additions.js#L47)
+
+Convert a Vector object to a JavaScript array 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|v|Vector object on the webasm shared buffer |
+
+
+**Returned Value:** array 
+
+
+
+
+
+
+
+
+## [wleEst_brm_one](../src/additions.js#L62)
+
+Compute an ability estimate using the binary response model 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|resp|Array of N response values (1=correct, 0=incorrect)|
+|params|2D array (Nx3) of item parameters|
+|range|Array (2-tuple) range to limit computed theta within |
+
+
+**Returned Value:** object with "theta", "info", and "sem" properties. Or a single "error" property 
+
+
+
+
+
+
+
+
+## [wleEst_grm_one](../src/additions.js#L121)
+
+Compute an ability estimate using a graded response model of M categories 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|resp|Array of N response values ranging from (1 to M)|
+|params|2D array (NxM) of item parameters|
+|range|Array (2-tuple) range to limit computed theta within. [-4.5, 4.5] by default |
+
+
+**Returned Value:** object with "theta", "info", and "sem" properties. Or a single "error" property 
+
+
+
+
+
+
+
+
+## [FI_brm_expected_one](../src/additions.js#L175)
+
+Compute expected Fisher Information values for a set of items using the binary response model 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|params|2D array (Nx3) of item parameters|
+|theta|a single ability estimate |
+
+
+**Returned Value:** object with "item", "test", and "sem" properties. Or a single "error" property 
+
+
+
+
+
+
+
+
+## [FI_grm_expected_one](../src/additions.js#L221)
+
+Compute expected Fisher Information values for a set of items using a graded response model of M categories 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|params|2D array (NxM) of item parameters|
+|theta|a single ability estimate |
+
+
+**Returned Value:** object with "item", "test", and "sem" properties. Or a single "error" property 
+
+
+
+
+
+
+
+
+## [termGLR_one](../src/additions.js#L267)
+
+Attempt to classify respones to a GRM of N categories using the generalized likelihood ratio 
+
+options defaults: 
+{ 
+range: [-4.5, 4.5], // range of theta values to analyze 
+bounds: [-1, 1], // likelihood boundaries (size N-1) 
+categories: [0, 1, 2], // category labels that will be returned (size N) 
+delta: 0.1, // defines size of indifference region 
+alpha: 0.05, // controls upper and lower likelihood threshold 
+beta: 0.05 // controls upper and lower likelihood threshold 
+} 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|params|2D array (NxM) of item parameters|
+|resp|Array of N response values ranging from (1 to M)|
+|options|Options object (see description above) |
+
+
+**Returned Value:** options.category value OR NULL if unable to classify 
+
+
+
+
+
+
+
+
+## [itChoose](../src/additions.js#L428)
+
+Choose optimal item(s) for test administration 
+
+options defaults: 
+{ 
+numb: 1, // number of items to randomly select from top N 
+n_select: 1, // top N items to consider 
+cat_theta: null // estimated ability of respondant 
+} 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|from_items|Array of item objects to choose from (with id and params properties)|
+|model|'brm' or 'grm'|
+|select|Item information function type. Currently only 'UW-FI' is supported|
+|at|Item selection parameter. Currently only 'theta' is supported. |
+
+
+**Returned Value:** Object with 'items' array or 'error' string 
+
+
+
+
+
+
+
+
+## [getAnswers](../src/additions.js#L608)
+
+Extract answers (i.e. finite values) from an array of responses 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|resp|Array NaN, Infinity, or numeric response values |
+
+
+**Returned Value:** array Array of just the finite response values 
+
+
+
+
+
+
+
+
+## [getAnsweredItems](../src/additions.js#L622)
+
+Filter array of items for those that have been answered 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|items|Array of N items|
+|resp|Array of N response values |
+
+
+**Returned Value:** array Array of items which have been answered (a finite response value is present) 
+
+
+
+
+
+
+
+
+## [getUnansweredItems](../src/additions.js#L637)
+
+Filter array of items for those that have not been answered 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|items|Array of N items|
+|resp|Array of N response values |
+
+
+**Returned Value:** array Array of items which have not been answered (no finite response value present) 
+
+
+
+
+
+
+
+
+## [p_brm](../src/catirt.cpp#L32)
+
+**Type:** `const` `ArrayXXd`
+
+Generate the BRM item probability matrix for person(s) with given ability estimates 
+
+Port of: p.brm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x 3 matrix) |
+
+
+**Returned Value:** person/item probability matrix (N x M) for N people and M items 
+
+
+
+
+
+
+
+
+## [p_grm](../src/catirt.cpp#L70)
+
+**Type:** `const` `ArrayXXd`
+
+Generate the item GRM probability matrix for person(s) with given ability estimates 
+
+Port of: p.grm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x K matrix) where K is number of categories |
+
+
+**Returned Value:** person/item probability matrix ((NK) x M) for N people, K categories, and M items 
+
+
+
+
+
+
+
+
+## [pder1_brm](../src/catirt.cpp#L115)
+
+**Type:** `const` `ArrayXXd`
+
+Derivative of the BRM item probability matrix for person(s) with given ability estimates 
+
+Port of: pder1.brm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x 3 matrix) |
+
+
+**Returned Value:** person/item derivative probability matrix (N x M) for N people and M items 
+
+
+
+
+
+
+
+
+## [pder1_grm](../src/catirt.cpp#L155)
+
+**Type:** `const` `ArrayXXd`
+
+Derivative of the GRM item probability matrix for person(s) with given ability estimates 
+
+Port of: pder1.grm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x K matrix) where K is number of categories |
+
+
+**Returned Value:** person/item derivative probability matrix ((NK) x M) for N people, K categories, and M items 
+
+
+
+
+
+
+
+
+## [pder2_brm](../src/catirt.cpp#L201)
+
+**Type:** `const` `ArrayXXd`
+
+2nd derivative of the BRM item probability matrix for person(s) with given ability estimates 
+
+Port of: pder2.brm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x 3 matrix) |
+
+
+**Returned Value:** person/item 2nd derivative probability matrix (N x M) for N people and M items 
+
+
+
+
+
+
+
+
+## [pder2_grm](../src/catirt.cpp#L243)
+
+**Type:** `const` `ArrayXXd`
+
+2nd derivative of the GRM item probability matrix for person(s) with given ability estimates 
+
+Port of: pder2.grm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x K matrix) where K is number of categories |
+
+
+**Returned Value:** person/item 2nd derivative probability matrix ((NK) x M) for N people, K categories, and M items 
+
+
+
+
+
+
+
+
+## [lder1_brm](../src/catirt.cpp#L290)
+
+**Type:** `const` `ArrayXd`
+
+Derivative of log-likelihoods of reponses to items at given ability estimates 
+
+Port of: lder1.brm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x 3 matrix)|
+|ltype|LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood) |
+
+
+**Returned Value:** derivative of log-likelihood for each person - vector (N x 1) 
+
+
+
+
+
+
+
+
+## [sel_prm](../src/catirt.cpp#L337)
+
+**Type:** `const` `ArrayXXd`
+
+Select item/category likelihoods 
+
+Port of: sel.prm in ExtractOperators.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|p|((MK) x J) likelihood values for all categories / various thetas|
+|u|Item responses (N people x J responses)|
+|K|number of categories |
+
+
+**Returned Value:** (T x J) matrix - item likelihoods where T = N>1; M, for N=1 
+
+
+
+
+
+
+
+
+## [logLik_grm](../src/catirt.cpp#L389)
+
+**Type:** `const` `ArrayXd`
+
+Log-likelihoods of reponses to items at given ability estimates 
+
+Port of: lokLik.grm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people (or T thetas if N people is 1)|
+|params|Parameters for M items (M x K matrix) where K is number of categories|
+|type|LogLikType::MLE or LogLikType::BME (not yet supported) |
+
+
+**Returned Value:** log-likelihood for each person - vector (N x 1) 
+
+
+
+
+
+
+
+
+## [lder1_grm](../src/catirt.cpp#L416)
+
+**Type:** `const` `ArrayXd`
+
+Derivative of log-likelihoods of reponses to items at given ability estimates 
+
+Port of: lder1.grm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x K matrix) where K is number of categories|
+|ltype|LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood) |
+
+
+**Returned Value:** derivative of log-likelihood for each person/category - vector (N x 1) 
+
+
+
+
+
+
+
+
+## [lder2_brm](../src/catirt.cpp#L465)
+
+**Type:** `const` `ArrayXXd`
+
+2nd derivative of log-likelihoods of reponses to items at given ability estimates 
+
+Port of: lder2.brm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x 3 matrix) |
+
+
+**Returned Value:** 2nd derivative of log-likelihood for each person - vector (N x M) 
+
+
+
+
+
+
+
+
+## [lder2_grm](../src/catirt.cpp#L493)
+
+**Type:** `const` `ArrayXXd`
+
+2nd derivative of log-likelihoods of reponses to items at given ability estimates 
+
+Port of: lder2.grm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people|
+|params|Parameters for M items (M x K matrix) where K is number of categories |
+
+
+**Returned Value:** 2nd derivative of log-likelihood for each person - vector (N x M) 
+
+
+
+
+
+
+
+
+## [FI_brm](../src/catirt.cpp#L545)
+
+**Type:** `const` `FI_Result`
+
+Fisher Information of BRM items for given ability estimates and optional responses (for OBSERVED info) 
+
+Port of: FI.brm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|params|Parameters for M items (M x 3 matrix)|
+|theta|Ability estimates for N people|
+|type|FIType::EXPECTED or FIType::OBSERVED|
+|resp|Item responses (N people x M responses) should be size 0 for FIType::EXPECTED |
+
+
+**Returned Value:** FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info 
+
+
+
+
+
+
+
+
+## [FI_grm](../src/catirt.cpp#L601)
+
+**Type:** `const` `FI_Result`
+
+Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info) 
+
+Port of: FI.grm.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|params|Parameters for M items (M x K matrix) where K is number of categories|
+|theta|Ability estimates for N people|
+|type|FIType::EXPECTED or FIType::OBSERVED|
+|resp|Item responses (N people x M responses) should be size 0 for FIType::EXPECTED |
+
+
+**Returned Value:** FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info 
+
+
+
+
+
+
+
+
+## [uniroot_lder1](../src/catirt.cpp#L672)
+
+**Type:** `Uniroot_Result`
+
+Search the range interval for a root of the specificed lder1 function with respect to theta 
+
+Combined port of: uniroot and R_zeroin2, Copyright (C) 1999-2016 The R Core Team 
+https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/R/nlm.R#L55 
+https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/src/zeroin.c 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|lderFP|Pointer to lder1_brm or lder1_grm functions|
+|range|Interval to search: should be [-X,+X] for some positive X|
+|resp|Item responses for a single person (1 x M)|
+|params|Parameters for M items (M x K matrix)|
+|type|LderType::WLE (weighted likelihood) or LderType::MLE (maximum likelihood)|
+|maxit|Maximum number of iterations for search (default: 1000)|
+|tol|Acceptable tolerance level (default: EPSILON^0.25) |
+
+
+**Returned Value:** Uniroot_Result with iter=-1 if a root did not converge within max iterations 
+
+
+
+
+
+
+
+
+## [wleEst](../src/catirt.cpp#L855)
+
+**Type:** `const` `Est_Result`
+
+Estimate ability from one or more sets of item responses 
+
+Port of: wleEst.R 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|resp|Item responses (N people x M responses) should be size 0 for FIType::EXPECTED|
+|params|Parameters for M items (M x K matrix)|
+|range|Range of abilities to explore (2 x 1)|
+|type|ModelType::BRM or ModelType::GRM |
+
+
+**Returned Value:** Est_Result with theta (Nx1), info (Nx1), and sem (Nx1) info 
+
+
+
+
+
+
+
+

@@ -63,3 +63,8 @@ This will generate `dist/catirt.wasm` and `dist/catirt.js`
 Unit tests: `npm test`
 
 Performance test: `node ./test/manual-performance-test.js`
+
+## Documentation
+Generate via: `npm run docs`
+
+View results in [docs/README.md](./docs/README.md)
