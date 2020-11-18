@@ -11,12 +11,12 @@ This project focuses on the functions necessary to build a performant CAT system
 npm install catirt
 ```
 
-## Usage
+## Usage Example
 ```
 const catirt_load = require('catirt');
 
 catirt_load().then(function(catirt) {
-  const resp = [NaN, NaN, 1, NaN, NaN];
+  // the item bank data structure expected by itChoose()
   const items = [
     {id: 'item1', params: [1.55,-1.88,0.12]},
     {id: 'item2', params: [1.9,-0.1,0.12]},
@@ -25,10 +25,15 @@ catirt_load().then(function(catirt) {
     {id: 'item5', params: [1.48,0.72,0.12]}
   ];
 
-  // estimate ability from a single set of responses using binary response model
-  let params = catirt.getAnsweredItems(items, resp).map(item => item.params);
-  let est = catirt.wleEst_brm_one(catirt.getAnswers(resp), params, [-4.5, 4.5]);
+  // the simplest response data structure: one entry for each item
+  const resp = [NaN, NaN, 1, NaN, NaN];
 
+  // estimate ability from a single set of responses using the binary response model
+  let answers = catirt.getAnswers(resp);
+  let params = catirt.getAnsweredItems(items, resp).map(item => item.params);
+  let est = catirt.wleEst_brm_one(answers, params);
+
+  // inspect result
   if (est.error) {
     console.log(`Error: ${est.error}`);
   } else {
@@ -37,9 +42,11 @@ catirt_load().then(function(catirt) {
     console.log(`SEM: ${est.sem}`);
   }
 
-  // choose best item to administer next
-  let chosen = catirt.itChoose(catirt.getUnansweredItems(items, resp), 'brm', 'UW-FI', 'theta', {cat_theta: est.theta});
+  // choose the best item to administer next
+  let from_items = catirt.getUnansweredItems(items, resp);
+  let chosen = catirt.itChoose(from_items, 'brm', 'UW-FI', 'theta', {cat_theta: est.theta});
 
+  // inspect result
   if (chosen.error) {
     console.log(`Error: ${chosen.error}`);
   } else {
