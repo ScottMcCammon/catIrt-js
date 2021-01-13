@@ -89,11 +89,24 @@ Module.wleEst_brm_one = function(resp, params, range=[-4.5, 4.5]) {
     };
   }
   for (let i = 0; i < resp.length; i++) {
-    if (!((typeof resp[i] === 'number') && Number.isFinite(resp[i]))) {
+    if (!(typeof resp[i] === 'number')) {
       return {
-        error: 'response has non-numeric or non-finite elements'
+        error: 'response has non-numeric elements'
       };
     }
+  }
+
+  // filter out non-finite responses and corresponding params
+  const sel = resp.map((r) => Number.isFinite(r));
+  resp = resp.filter((val, idx) => sel[idx]);
+  params = params.filter((val, idx) => sel[idx]);
+
+  if (resp.length === 0) {
+    return {
+      theta: 0.0,
+      info: NaN,
+      sem: NaN
+    };
   }
 
   const result = {};
