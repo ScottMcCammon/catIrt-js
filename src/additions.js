@@ -218,6 +218,66 @@ Module.FI_brm_expected_one = function(params, theta) {
 };
 
 /**
+ * Compute expected Fisher Information (modified unweighted) values for a set of items using the binary response model
+ *
+ * @param params2 2D array (Nx3) of phase2 item parameters
+ * @param theta2  a single phase2 ability estimate
+ * @param params1 2D array (Nx3) of phase1 item parameters
+ * @param theta1  a single phase1 ability estimate
+ *
+ * @return object with "item", "test", and "sem" properties. Or a single "error" property
+ */
+Module.FI_brm_expected_one_modified = function(params2, theta2, params1, theta1) {
+  if (!(Array.isArray(params2) && params2.length)) {
+    return {
+      error: 'params2 must be a non-empty array'
+    };
+  }
+  if (!Number.isFinite(theta2)) {
+    return {
+      error: 'theta2 must be a finite number'
+    };
+  }
+  if (!(Array.isArray(params1) && params1.length)) {
+    return {
+      error: 'params1 must be a non-empty array'
+    };
+  }
+  if (!Number.isFinite(theta1)) {
+    return {
+      error: 'theta1 must be a finite number'
+    };
+  }
+
+  const result = {
+    item: []
+  };
+
+  const mParams2 = Module.MatrixFromArray(params2);
+  const mTheta2 = Module.MatrixFromArray([[theta2]]);
+  const mParams1 = Module.MatrixFromArray(params1);
+  const mTheta1 = Module.MatrixFromArray([[theta1]]);
+  const res = Module.wasm_FI_brm_modified_expected(mParams2, mTheta2, mParams1, mTheta1);
+
+  for (let i = 0; i < res.item.cols(); i++) {
+    result.item.push(res.item.get(0, i));
+  }
+  result.test = res.test.get(0);
+  result.sem = res.sem.get(0);
+
+  // wasm heap cleanup
+  mParams2.delete();
+  mTheta2.delete();
+  mParams1.delete();
+  mTheta1.delete();
+  res.item.delete();
+  res.test.delete();
+  res.sem.delete();
+
+  return result;
+};
+
+/**
  * Compute expected Fisher Information values for a set of items using a graded response model of M categories
  *
  * @param params 2D array (NxM) of item parameters
@@ -452,6 +512,8 @@ Module.itChoose = function(from_items, model, select, at, options={}) {
     it_range: null,
     delta: null,
     bounds: null,
+    phase1_est_theta: null,
+    phase1_params: null,
     ddist: null,
     quad: null
   };
@@ -491,9 +553,14 @@ Module.itChoose = function(from_items, model, select, at, options={}) {
   }
 
   // validate select
-  if (!(select === 'UW-FI')) {
+  if (!(select === 'UW-FI' || select === 'UW-FI-Modified')) {
     return {
       error: `Invalid or unsupported "select" provided: "${select}"`
+    };
+  }
+  if ((select === 'UW-FI-Modified') && (model !== 'brm')) {
+    return {
+      error: `UW-FI-Modified is only supported with the brm model`
     };
   }
 
@@ -550,6 +617,21 @@ Module.itChoose = function(from_items, model, select, at, options={}) {
       error: `non-null "bounds" not used`
     };
   }
+  if (!(options.phase1_est_theta === null || Number.isFinite(options.phase1_est_theta))) {
+    return {
+      error: `"phase1_est_theta" must be finite or null`
+    };
+  }
+  if (!(options.phase1_params === null || (Array.isArray(options.phase1_params) && options.phase1_params.length === from_items.length))) {
+    return {
+      error: `"phase1_params" must be null or array of length matching "from_items"`
+    };
+  }
+  if (select === 'UW-FI-Modified' && (options.phase1_est_theta === null || options.phase1_params === null)) {
+    return {
+      error: `"phase1_est_theta" and "phase1_params" required for "${select}" select mode`
+    };
+  }
   if (!(options.ddist === null)) {
     return {
       error: `non-null "ddist" not used`
@@ -575,6 +657,9 @@ Module.itChoose = function(from_items, model, select, at, options={}) {
     else {
       item_info = Module.FI_grm_expected_one(from_items.map(item => item.params), theta)['item'];
     }
+  }
+  else if (select === 'UW-FI-Modified' && model === 'brm') {
+    item_info = Module.FI_brm_expected_one_modified(from_items.map(item => item.params), theta, options.phase1_params, options.phase1_est_theta)['item'];
   }
 
   // create sortable info array that tracks from_items index

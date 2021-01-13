@@ -419,6 +419,37 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('wasm_FI_brm_modified_expected:', function () {
+    it('wasm_FI_brm_modified_expected(params2, theta2, params1, theta1)', function () {
+      // expected values from R equivalent: `catIrt::FI.brm(params, theta, type="expected", phase1_params=params, phase1_est_theta=theta)`
+      const expected = {
+        type: catirtlib.FIType.EXPECTED,
+        item: [
+          [1.054869e-01, 0.1249536068, 0.09824271, 0.01755472, 0.02175564],
+          [9.518886e-05, 0.0002714249, 0.01107407, 0.05281401, 0.10045315]
+        ],
+        test: [0.3679936, 0.1647078],
+        sem: [1.648465, 2.464012]
+      };
+
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.wasm_FI_brm_modified_expected(mParams, mTheta, mParams, mTheta);
+
+      assert.strictEqual(res.type, expected.type);
+      assert.strictEqual(format(catirtlib.MatrixToArray(res.item)), format(expected.item));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.test)), format(expected.test));
+      assert.strictEqual(format(catirtlib.VectorToArray(res.sem)), format(expected.sem));
+
+      // wasm heap cleanup
+      mParams.delete();
+      mTheta.delete();
+      res.item.delete();
+      res.test.delete();
+      res.sem.delete();
+    });
+  });
+
   describe('wasm_FI_grm:', function () {
     it('wasm_FI_grm(params, theta, "EXPECTED")', function () {
       // expected values from R equivalent: `catIrt::FI.grm(params, theta, type="expected")`
@@ -946,6 +977,14 @@ describe('catIrt webasm', function () {
         items: [{id: 'item2', params: [3.02, -0.38, 0.12], info: 1.41394}]
       };
       const res = catirtlib.itChoose(items, 'brm', 'UW-FI', 'theta', {cat_theta: 0.0});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('itChoose(items, "brm", "UW-FI-Modified", "theta", {cat_theta=0.0, phase1_params=itemparams, phase1_est_theta=0.0})', function () {
+      const expected = {
+        items: [{id: 'item4', params: [2.06, 0.41, 0.12], info: 0.3777282}]
+      };
+      const res = catirtlib.itChoose(items, 'brm', 'UW-FI-Modified', 'theta', {cat_theta: 0.0, phase1_params:itemparams, phase1_est_theta:0.0});
       assert.strictEqual(format(res), format(expected));
     });
 

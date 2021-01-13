@@ -598,7 +598,51 @@ const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const Array
 }
 
 /**MDJAVADOC_SKIP
- * Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info)
+ * Expected Fisher Information (modified unweighted) of BRM items for given phase 1 and phase 2 ability estimates
+ *
+ * @param p2_params      Phase 2 parameters for M items (M x 3 matrix)
+ * @param p2_theta       Phase 2 ability estimates for N people
+ * @param p1_params      Phase 1 parameters for M items (M x 3 matrix)
+ * @param p1_theta       Phase 1 ability estimates for N people
+ *
+ * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
+ */
+const FI_Result FI_brm_modified_expected( const Ref<const ArrayX3d>& p2_params, const Ref<const ArrayXd>& p2_theta, const Ref<const ArrayX3d>& p1_params, const Ref<const ArrayXd>& p1_theta )
+{
+  // Make sure that item parameters have matching dimensions
+  if ( (p1_params.rows() != p2_params.rows()) || (p1_params.cols() != p2_params.cols()) ) {
+    throw "FI_brm_modified_expected phase1 and phase2 item parameters dimension mismatch";
+  }
+
+  // Make sure that theta estimates have matching dimensions
+  if ( p1_theta.size() != p2_theta.size() ) {
+    throw "FI_brm_modified_expected phase1 and phase2 theta size mismatch";
+  }
+
+  ArrayXXd p;
+  ArrayXXd q;
+  ArrayXXd pder1;
+  FI_Result result = FI_Result(FIType::EXPECTED);
+
+  // Expected Fisher Information: p'^2/(p*q)
+  // Calculating the probability of response:
+  p = p_brm(p2_theta, p2_params);
+  q = (1 - p);
+
+  // Calculating the first derivative:
+  pder1 = pder1_brm(p2_theta, p2_params);
+
+  // modified: apply phase1 adjustments
+  result.item = (1 - p_brm(p1_theta, p1_params)) * (pder1.square() / ( p * q ));
+
+  result.test = result.item.rowwise().sum();
+  result.sem = sqrt( 1 / result.test );
+
+  return result;
+}
+
+/**MDJAVADOC_SKIP
+ * Expected Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info)
  *
  * Port of: FI.grm.R
  *
@@ -618,12 +662,12 @@ const FI_Result FI_grm( const Ref<const ArrayXXd>& params, const Ref<const Array
 
   // Make sure that resp is NULL if type is "expected"
   if ( type == FIType::EXPECTED && resp.size() > 0 ) {
-    throw "FI_brm type EXPECTED with non-zero responses";
+    throw "FI_grm type EXPECTED with non-zero responses";
   }
 
   // Make sure that resp exists if we are calculating "observed" information
   if ( type == FIType::OBSERVED && resp.size() == 0 ) {
-    throw "FI_brm need response scalar/vector to calculate observed information";
+    throw "FI_grm need response scalar/vector to calculate observed information";
   }
 
   int N = theta.size();  // number of people
@@ -671,7 +715,7 @@ struct Uniroot_Result
 /**MDJAVADOC_SKIP
  * Search the range interval for a root of the specificed lder1 function with respect to theta
  *
- * Combined port of: uniroot and R_zeroin2, Copyright (C) 1999-2016  The R Core Team 
+ * Combined port of: uniroot and R_zeroin2, Copyright (C) 1999-2016  The R Core Team
  *   https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/R/nlm.R#L55
  *   https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/src/zeroin.c
  *
@@ -1222,6 +1266,21 @@ JSFI_Result wasm_FI_brm(const JSMatrix *params, const JSMatrix *theta, FIType ty
 }
 
 /**
+ * Expected Fisher Information (modified unweighted) of BRM items for given phase 1 and phase 2 ability estimates
+ *
+ * @param p2_params      Phase 2 parameters for M items (M x 3 matrix)
+ * @param p2_theta       Phase 2 ability estimates for N people
+ * @param p1_params      Phase 1 parameters for M items (M x 3 matrix)
+ * @param p1_theta       Phase 1 ability estimates for N people
+ *
+ * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
+ */
+JSFI_Result wasm_FI_brm_modified_expected(const JSMatrix *p2_params, const JSMatrix *p2_theta, const JSMatrix *p1_params, const JSMatrix *p1_theta)
+{
+  return JSFI_Result(FI_brm_modified_expected(p2_params->toEigen(), p2_theta->toEigen(), p1_params->toEigen(), p1_theta->toEigen()));
+}
+
+/**
  * Fisher Information of GRM items for given ability estimates and optional responses (for OBSERVED info)
  *
  * @param params      Parameters for M items (M x K matrix) where K is number of categories
@@ -1360,6 +1419,7 @@ EMSCRIPTEN_BINDINGS(Module)
     function("wasm_lder2_brm", &wasm_lder2_brm, allow_raw_pointers());
     function("wasm_lder2_grm", &wasm_lder2_grm, allow_raw_pointers());
     function("wasm_FI_brm", &wasm_FI_brm, allow_raw_pointers());
+    function("wasm_FI_brm_modified_expected", &wasm_FI_brm_modified_expected, allow_raw_pointers());
     function("wasm_FI_grm", &wasm_FI_grm, allow_raw_pointers());
     function("wasm_uniroot_lder1", &wasm_uniroot_lder1, allow_raw_pointers());
     function("wasm_wleEst", &wasm_wleEst, allow_raw_pointers());
