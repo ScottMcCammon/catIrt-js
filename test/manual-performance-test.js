@@ -7,10 +7,17 @@ function resp2binary(r) {
     return (r === 2 ? 1 : 0);
 }
 
+function resp2phase2(r) {
+    if (r === 2) {
+        return NaN;
+    }
+    return (r === 1 ? 1 : 0);
+}
+
 catirt_load().then(function(catirtlib) {
   let maxHeap = 0;
   let i = 1;
-  let n, resp, useditems, fromitems, res, sel, u, endTime;
+  let n, resp, useditems, fromitems, res1, res2, sel, u, endTime;
   const begTime = new Date();
 
   while (true) {
@@ -18,24 +25,25 @@ catirt_load().then(function(catirtlib) {
     respbank.shuffle();
     itembank.shuffle();
     n = Math.max(1, Math.floor(Math.random() * 40));
-    resp = respbank.filter((_, i) => i < n);
-    useditems = itembank.filter((_, i) => (i < n));
-    fromitems = itembank.filter((_, i) => (i >= n));
+    resp = respbank.slice(0, n);
+    useditems = itembank.slice(0, n);
+    fromitems = itembank.slice(n);
 
-    // theta1 scoring
-    res = catirtlib.wleEst_brm_one(resp.map(resp2binary), useditems.map(it => it.p1params));
+    // theta1 scoring (limited to first 25 responses)
+    res1 = catirtlib.wleEst_brm_one(resp.slice(0, 25).map(resp2binary), useditems.slice(0, 25).map(it => it.p1params));
 
     // phase1 item selection
-    if (n <= 20) {
-      sel = catirtlib.itChoose(fromitems.map(it => ({id:it.id, params:it.p1params})), 'brm', 'UW-FI', 'theta', {cat_theta: res.theta});
+    if (n < 25) {
+      sel = catirtlib.itChoose(fromitems.map(it => ({id:it.id, params:it.p1params})), 'brm', 'UW-FI', 'theta', {cat_theta: res1.theta});
     }
 
     // theta2 scoring
-    res = catirtlib.wleEst_grm_one(resp, useditems.map(it => it.p2params));
+    res2 = catirtlib.wleEst_brm_one(resp.map(resp2phase2), useditems.map(it => it.p2params));
 
     // phase2 item selection
-    if (n > 20) {
-      sel = catirtlib.itChoose(fromitems.map(it => ({id:it.id, params:it.p2params})), 'grm', 'UW-FI', 'theta', {cat_theta: res.theta});
+    if (n >= 25) {
+      phase1_params = fromitems.slice(0, 25).map(it => ({id:it.id, params:it.p1params}));
+      sel = catirtlib.itChoose(fromitems.map(it => ({id:it.id, params:it.p2params})), 'brm', 'UW-FI-Modified', 'theta', {cat_theta: res2.theta, phase1_params: phase1_params, phase1_est_theta: res1.theta });
     }
 
     // memory and performance metrics

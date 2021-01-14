@@ -8,6 +8,18 @@ respbank <- c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 
 resp2binary <- function(x) if (x == 2) 1 else 0
 
+resp2phase2 <- function(r) {
+  if (r == 2) {
+    return(NA)
+  }
+  else if (r == 1) {
+    return(1)
+  }
+  else {
+    return(0)
+  }
+}
+
 begTime <- Sys.time()
 i <- 1
 while (TRUE) {
@@ -19,20 +31,20 @@ while (TRUE) {
   useditems <- itembank[1:n,, drop=FALSE]
   fromitems <- itembank[-(1:n),]
 
-  # theta1 scoring
-  res <- wleEst(sapply(resp, resp2binary), useditems[,2:4], mod="brm")
+  # theta1 scoring (limited to first 25 responses)
+  res1 <- wleEst(sapply(head(resp, 25), resp2binary), head(useditems[,2:4], 25), mod="brm")
 
   # phase1 item selection
-  if (n <= 20) {
-    sel <- itChoose(fromitems[,1:4], mod="brm", select="UW-FI", at="theta", cat_theta=res$theta)
+  if (n < 25) {
+    sel <- itChoose(fromitems[,1:4], mod="brm", select="UW-FI", at="theta", cat_theta=res1$theta)
   }
 
   # theta2 scoring
-  res <- wleEst(resp, useditems[,5:7], mod="grm")
+  res2 <- wleEst(sapply(resp, resp2phase2), useditems[,5:7], mod="brm")
 
   # phase2 item selection
-  if (n > 20) {
-    sel <- itChoose(cbind(useditems[,1], useditems[,5:7]), mod="grm", select="UW-FI", at="theta", cat_theta=res$theta)
+  if (n >= 25) {
+    sel <- itChoose(cbind(fromitems[,1], fromitems[,5:7]), mod="brm", select="UW-FI-Modified", at="theta", cat_theta=res2$theta, phase1_params=useditems[1:25, 5:7], phase1_est_theta=res1$theta)
   }
 
   # performance metrics
