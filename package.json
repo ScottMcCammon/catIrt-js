@@ -1,7 +1,7 @@
 {
   "name": "catirt",
   "description": "CatIrt-js is a JavaScript / WebAssembly port of the [catIrt](https://github.com/swnydick/catIrt) R package",
-  "homepage": "https://github.com/uomccammon/catIrt-js",
+  "homepage": "https://github.com/ScottMcCammon/catIrt-js",
   "main": "./dist/catirt.js",
   "version": "2.1.0",
   "files": [
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/uomccammon/catIrt-js.git"
+    "url": "https://github.com/ScottMcCammon/catIrt-js.git"
   },
   "author": "Scott McCammon <mccammon@uoregon.edu>",
   "license": "GPL-3.0-or-later",
