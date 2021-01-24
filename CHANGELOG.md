@@ -1,5 +1,11 @@
 # catIrt-js ChangeLog
 
+## 2021-01-24: Version 2.2.0
+
+ - port logLik.R to wasm_logLik_brm
+ - add support for BRM classification in termGLR_one
+ - filter out non-finite responses and linked params in termGLR_one
+
 ## 2021-01-13: Version 2.1.0
 
  - add "UW-FI-Modified" select option to itChoose
