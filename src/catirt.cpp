@@ -386,16 +386,48 @@ const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>&
 }
 
 /**MDJAVADOC_SKIP
- * Log-likelihoods of reponses to items at given ability estimates
+ * BRM model log-likelihoods of reponses to items at given ability estimates
+ *
+ * Port of: lokLik.brm.R
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people (or T thetas if N is 1)
+ * @param params      Parameters for M items (M x 3 matrix)
+ * @param type        LogLikType::MLE or LogLikType::BME (not yet supported)
+ *
+ * @return log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1)
+ */
+const ArrayXd logLik_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, LogLikType type=LogLikType::MLE )
+{
+  ArrayXXd p = p_brm(theta, params);
+  ArrayXXd logLik;
+
+  if (type == LogLikType::BME) {
+    throw "logLik_brm unsupported LogLikType::BME";
+  }
+
+  if (u.rows() == 1 && theta.size() > 1) {
+    logLik = ( p.log().rowwise() * u.row(0) ) + ( (1 - p).log().rowwise() * (1 - u.row(0)));
+  }
+  else {
+    logLik = (u * p.log()) + ((1 - u) * (1 - p).log());
+  }
+
+  // return scalar vector of logLik's
+  return logLik.rowwise().sum();
+}
+
+/**MDJAVADOC_SKIP
+ * GRM model log-likelihoods of reponses to items at given ability estimates
  *
  * Port of: lokLik.grm.R
  *
  * @param u           Item responses (N people x M responses)
- * @param theta       Ability estimates for N people (or T thetas if N people is 1)
+ * @param theta       Ability estimates for N people (or T thetas if N is 1)
  * @param params      Parameters for M items (M x K matrix) where K is number of categories
  * @param type        LogLikType::MLE or LogLikType::BME (not yet supported)
  *
- * @return log-likelihood for each person - vector (N x 1)
+ * @return log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1)
  */
 const ArrayXd logLik_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LogLikType type=LogLikType::MLE )
 {
@@ -1167,14 +1199,31 @@ const Vector wasm_lder1_grm(const JSMatrix *u, const JSMatrix *theta, const JSMa
 }
 
 /**
- * Log-likelihoods of reponses to items at given ability estimates
+ * BRM model log-likelihoods of reponses to items at given ability estimates
+ *
+ * Port of: lokLik.brm.R
  *
  * @param u           Item responses (N people x M responses)
- * @param theta       Ability estimates for N people (or T thetas if N people is 1)
- * @param params      Parameters for M items (M x K matrix) where K is number of categories
- * @param type        LogLikType.MLE (LogLikType.BME not yet supported)
+ * @param theta       Ability estimates for N people (or T thetas if N is 1)
+ * @param params      Parameters for M items (M x 3 matrix)
+ * @param type        LogLikType.MLE or LogLikType.BME (not yet supported)
  *
- * @return log-likelihood for each person - vector (N x 1)
+ * @return log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1)
+ */
+const Vector wasm_logLik_brm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LogLikType type)
+{
+  return VectorFromMatrix(logLik_brm(u->toEigen(), theta->toEigen(), params->toEigen(), type));
+}
+
+/**
+ * GRM model log-likelihoods of reponses to items at given ability estimates
+ *
+ * @param u           Item responses (N people x M responses)
+ * @param theta       Ability estimates for N people (or T thetas if N is 1)
+ * @param params      Parameters for M items (M x K matrix) where K is number of categories
+ * @param type        LogLikType.MLE or LogLikType.BME (not yet supported)
+ *
+ * @return log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1)
  */
 const Vector wasm_logLik_grm(const JSMatrix *u, const JSMatrix *theta, const JSMatrix *params, LogLikType type)
 {
@@ -1414,6 +1463,7 @@ EMSCRIPTEN_BINDINGS(Module)
     function("wasm_pder2_grm", &wasm_pder2_grm, allow_raw_pointers());
     function("wasm_lder1_brm", &wasm_lder1_brm, allow_raw_pointers());
     function("wasm_sel_prm", &wasm_sel_prm, allow_raw_pointers());
+    function("wasm_logLik_brm", &wasm_logLik_brm, allow_raw_pointers());
     function("wasm_logLik_grm", &wasm_logLik_grm, allow_raw_pointers());
     function("wasm_lder1_grm", &wasm_lder1_grm, allow_raw_pointers());
     function("wasm_lder2_brm", &wasm_lder2_brm, allow_raw_pointers());

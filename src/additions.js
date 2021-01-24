@@ -98,8 +98,8 @@ Module.wleEst_brm_one = function(resp, params, range=[-4.5, 4.5]) {
 
   // filter out non-finite responses and corresponding params
   const sel = resp.map((r) => Number.isFinite(r));
-  resp = resp.filter((val, idx) => sel[idx]);
-  params = params.filter((val, idx) => sel[idx]);
+  resp = resp.filter((_, idx) => sel[idx]);
+  params = params.filter((_, idx) => sel[idx]);
 
   if (resp.length === 0) {
     return {
@@ -337,13 +337,13 @@ Module.FI_grm_expected_one = function(params, theta) {
 };
 
 /**
- * Attempt to classify respones to a GRM of N categories using the generalized likelihood ratio
+ * Attempt to classify responses to a BRM model of 2 categories, or a GRM model of N categories using the generalized likelihood ratio
  *
  * options defaults:
  *  {
  *      range:      [-4.5, 4.5], // range of theta values to analyze
- *      bounds:     [-1, 1],     // likelihood boundaries (size N-1)
- *      categories: [0, 1, 2],   // category labels that will be returned (size N)
+ *      bounds:     [-1, 1],     // likelihood boundaries for GRM (size N-1) (default [0] for BRM)
+ *      categories: [0, 1, 2],   // category labels that will be returned (size N) (BRM only considers first 2 categories)
  *      delta:      0.1,         // defines size of indifference region
  *      alpha:      0.05,        // controls upper and lower likelihood threshold
  *      beta:       0.05         // controls upper and lower likelihood threshold
@@ -351,15 +351,16 @@ Module.FI_grm_expected_one = function(params, theta) {
  *
  * @param params  2D array (NxM) of item parameters
  * @param resp    Array of N response values ranging from (1 to M)
+ * @param model   'brm' or 'grm'
  * @param options Options object (see description above)
  *
  * @return options.category value OR NULL if unable to classify
  */
-Module.termGLR_one = function(params, resp, options={}) {
+Module.termGLR_one = function(params, resp, model, options={}) {
   const defaults = {
     range: [-4.5, 4.5],
-    bounds: [-1, 1],
-    categories: [0, 1, 2],
+    bounds: (model === 'brm' ? [0] : [-1, 1]),
+    categories: [0, 1, 2], // BRM will ignore indices > 1
     delta: 0.1,
     alpha: 0.05,
     beta: 0.05
@@ -370,10 +371,26 @@ Module.termGLR_one = function(params, resp, options={}) {
   // Argument checks
   //
 
+  // validate model
+  if (!(model === 'brm' || model === 'grm')) {
+    return {
+      error: 'invalid or unsupported model'
+    };
+  }
   // validate params
-  if (!(Array.isArray(params) && params.length && Array.isArray(params[0]) && params[0].length > 1)) {
+  if (!(Array.isArray(params) && params.length && Array.isArray(params[0]))) {
     return {
       error: 'params must be a non-empty 2-D array'
+    };
+  }
+  if ((model === 'brm') && !(params[0].length === 3)) {
+    return {
+      error: 'params must have length 3 for brm model'
+    };
+  }
+  if ((model === 'grm') && !(params[0].length > 1)) {
+    return {
+      error: 'params must have length greater than 1 for grm model'
     };
   }
   // validate resp
@@ -383,9 +400,9 @@ Module.termGLR_one = function(params, resp, options={}) {
     };
   }
   for (let i = 0; i < resp.length; i++) {
-    if (!((typeof resp[i] === 'number') && Number.isFinite(resp[i]))) {
+    if (!(typeof resp[i] === 'number')) {
       return {
-        error: 'resp values must all be finite'
+        error: 'resp has non-numeric elements'
       };
     }
   }
@@ -395,14 +412,24 @@ Module.termGLR_one = function(params, resp, options={}) {
       error: 'invalid range option'
     };
   }
-  if (!(Array.isArray(options.bounds) && options.bounds.length === params[0].length - 1)) {
+  if (model === 'brm' && !(Array.isArray(options.bounds) && options.bounds.length === 1)) {
     return {
       error: 'invalid bounds option'
     };
   }
-  if (!(Array.isArray(options.categories) && options.categories.length === params[0].length)) {
+  if (model === 'grm' && !(Array.isArray(options.bounds) && options.bounds.length === params[0].length - 1)) {
     return {
-      error: 'invalid categories option'
+      error: 'invalid bounds option'
+    };
+  }
+  if (model === 'brm' && !(Array.isArray(options.categories) && options.categories.length >= 2)) {
+    return {
+      error: 'invalid categories option for brm model'
+    };
+  }
+  if (model === 'grm' && !(Array.isArray(options.categories) && options.categories.length === params[0].length)) {
+    return {
+      error: 'invalid categories option for grm model'
     };
   }
   if (!(Number.isFinite(options.delta) && options.delta > 0)) {
@@ -421,6 +448,15 @@ Module.termGLR_one = function(params, resp, options={}) {
     };
   }
 
+  // filter out non-finite responses and corresponding params
+  const sel = resp.map((r) => Number.isFinite(r));
+  resp = resp.filter((_, idx) => sel[idx]);
+  params = params.filter((_, idx) => sel[idx]);
+
+  if (resp.length === 0) {
+    return null;
+  }
+
   const c_lower = Math.log( options.beta / (1 - options.alpha) );
   const c_upper = Math.log( (1 - options.beta) / options.alpha );
 
@@ -433,7 +469,14 @@ Module.termGLR_one = function(params, resp, options={}) {
   const mResp = Module.MatrixFromArray([resp]);
   const mParams = Module.MatrixFromArray(params);
   const mTheta = Module.MatrixFromArray([theta]);
-  const res = Module.wasm_logLik_grm(mResp, mTheta, mParams, Module.LogLikType.MLE);
+
+  let res;
+  if (model === 'grm') {
+    res = Module.wasm_logLik_grm(mResp, mTheta, mParams, Module.LogLikType.MLE);
+  }
+  else {
+    res = Module.wasm_logLik_brm(mResp, mTheta, mParams, Module.LogLikType.MLE);
+  }
 
   const likVals = Module.VectorToArray(res);
 

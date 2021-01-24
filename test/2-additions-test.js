@@ -359,9 +359,27 @@ describe('catIrt JS additions', function () {
   });
 
   describe('termGLR_one:', function () {
-    it('termGLR_one(params, resp, options)', function () {
+    it('termGLR_one(params, uresp[0], "grm", options)', function () {
       const expected = 1;
-      const res = catirtlib.termGLR_one(itemparams, uresp_grm[0], {categories:[0,1,2], delta:0.5, alpha:0.1, beta:0.1});
+      const res = catirtlib.termGLR_one(itemparams, uresp_grm[0], 'grm', {categories:[0,1,2], delta:0.5, alpha:0.1, beta:0.1});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('termGLR_one(params, uresp[1], "grm", options)', function () {
+      const expected = null;
+      const res = catirtlib.termGLR_one(itemparams, uresp_grm[1], 'grm', {categories:[0,1,2], delta:0.5, alpha:0.1, beta:0.1});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('termGLR_one(params, uresp[0], "brm", options)', function () {
+      const expected = null;
+      const res = catirtlib.termGLR_one(itemparams, uresp[0], 'brm', {categories:[0,1], bounds:[0], delta:0.5, alpha:0.1, beta:0.1});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('termGLR_one(params, uresp[1], "brm", options)', function () {
+      const expected = 0;
+      const res = catirtlib.termGLR_one(itemparams, uresp[1], 'brm', {categories:[0,1], bounds:[0], delta:0.5, alpha:0.1, beta:0.1});
       assert.strictEqual(format(res), format(expected));
     });
   });

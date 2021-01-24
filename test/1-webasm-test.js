@@ -299,6 +299,62 @@ describe('catIrt webasm', function () {
     });
   });
 
+  describe('wasm_logLik_brm:', function () {
+    it('wasm_logLik_brm(u, theta, params)', function () {
+      // expected values from R equivalent: `catIrt::logLik.brm(u, theta, params)`
+      const expected = [-3.992064, -12.744254];
+
+      const mResp = catirtlib.MatrixFromArray(uresp);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.wasm_logLik_brm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+
+    it('wasm_logLik_brm(u[0], theta[0], params)', function () {
+      // expected values from R equivalent: `catIrt::logLik.brm(u, theta, params)`
+      const expected = [-3.992064];
+
+      const mResp = catirtlib.MatrixFromArray([uresp[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([[theta[0]]]);
+      const res = catirtlib.wasm_logLik_brm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+
+    it('wasm_logLik_brm(u[0], theta, params)', function () {
+      // expected values from R equivalent: `catIrt::logLik.brm(u, theta, params)`
+      const expected = [-3.992064, -3.520212];
+
+      const mResp = catirtlib.MatrixFromArray([uresp[0]]);
+      const mParams = catirtlib.MatrixFromArray(itemparams);
+      const mTheta = catirtlib.MatrixFromArray([theta]);
+      const res = catirtlib.wasm_logLik_brm(mResp, mTheta, mParams, catirtlib.LogLikType.MLE);
+
+      assert.strictEqual(format(catirtlib.VectorToArray(res)), format(expected));
+
+      // wasm heap cleanup
+      mResp.delete();
+      mParams.delete();
+      mTheta.delete();
+      res.delete();
+    });
+  });
+
   describe('wasm_logLik_grm:', function () {
     it('wasm_logLik_grm(u, theta, params)', function () {
       // expected values from R equivalent: `catIrt::logLik.grm(u, theta, params)`
