@@ -185,13 +185,13 @@ Compute expected Fisher Information values for a set of items using a graded res
 
 ## [termGLR_one](../src/additions.js#L340)
 
-Attempt to classify respones to a GRM of N categories using the generalized likelihood ratio 
+Attempt to classify responses to a BRM model of 2 categories, or a GRM model of N categories using the generalized likelihood ratio 
 
 options defaults: 
 { 
 range: [-4.5, 4.5], // range of theta values to analyze 
-bounds: [-1, 1], // likelihood boundaries (size N-1) 
-categories: [0, 1, 2], // category labels that will be returned (size N) 
+bounds: [-1, 1], // likelihood boundaries for GRM (size N-1) (default [0] for BRM) 
+categories: [0, 1, 2], // category labels that will be returned (size N) (BRM only considers first 2 categories) 
 delta: 0.1, // defines size of indifference region 
 alpha: 0.05, // controls upper and lower likelihood threshold 
 beta: 0.05 // controls upper and lower likelihood threshold 
@@ -205,6 +205,7 @@ beta: 0.05 // controls upper and lower likelihood threshold
 |-----|-----|
 |params|2D array (NxM) of item parameters|
 |resp|Array of N response values ranging from (1 to M)|
+|model|'brm' or 'grm'|
 |options|Options object (see description above) |
 
 
@@ -217,7 +218,7 @@ beta: 0.05 // controls upper and lower likelihood threshold
 
 
 
-## [itChoose](../src/additions.js#L501)
+## [itChoose](../src/additions.js#L544)
 
 Choose optimal item(s) for test administration 
 
@@ -249,7 +250,7 @@ cat_theta: null // estimated ability of respondant
 
 
 
-## [getAnswers](../src/additions.js#L706)
+## [getAnswers](../src/additions.js#L749)
 
 Extract answers (i.e. finite values) from an array of responses 
 
@@ -271,7 +272,7 @@ Extract answers (i.e. finite values) from an array of responses
 
 
 
-## [getAnsweredItems](../src/additions.js#L720)
+## [getAnsweredItems](../src/additions.js#L763)
 
 Filter array of items for those that have been answered 
 
@@ -294,7 +295,7 @@ Filter array of items for those that have been answered
 
 
 
-## [getUnansweredItems](../src/additions.js#L735)
+## [getUnansweredItems](../src/additions.js#L778)
 
 Filter array of items for those that have not been answered 
 
@@ -317,7 +318,7 @@ Filter array of items for those that have not been answered
 
 
 
-## [wasm_p_brm](../src/catirt.cpp#L1062)
+## [wasm_p_brm](../src/catirt.cpp#L1094)
 
 **Type:** `const` `JSMatrix`
 
@@ -342,7 +343,7 @@ Generate the BRM item probability matrix for person(s) with given ability estima
 
 
 
-## [wasm_p_grm](../src/catirt.cpp#L1075)
+## [wasm_p_grm](../src/catirt.cpp#L1107)
 
 **Type:** `const` `JSMatrix`
 
@@ -367,7 +368,7 @@ Generate the item GRM probability matrix for person(s) with given ability estima
 
 
 
-## [wasm_pder1_brm](../src/catirt.cpp#L1088)
+## [wasm_pder1_brm](../src/catirt.cpp#L1120)
 
 **Type:** `const` `JSMatrix`
 
@@ -392,7 +393,7 @@ Derivative of the BRM item probability matrix for person(s) with given ability e
 
 
 
-## [wasm_pder1_grm](../src/catirt.cpp#L1101)
+## [wasm_pder1_grm](../src/catirt.cpp#L1133)
 
 **Type:** `const` `JSMatrix`
 
@@ -417,7 +418,7 @@ Derivative of the GRM item probability matrix for person(s) with given ability e
 
 
 
-## [wasm_pder2_brm](../src/catirt.cpp#L1114)
+## [wasm_pder2_brm](../src/catirt.cpp#L1146)
 
 **Type:** `const` `JSMatrix`
 
@@ -442,7 +443,7 @@ Derivative of the GRM item probability matrix for person(s) with given ability e
 
 
 
-## [wasm_pder2_grm](../src/catirt.cpp#L1127)
+## [wasm_pder2_grm](../src/catirt.cpp#L1159)
 
 **Type:** `const` `JSMatrix`
 
@@ -467,7 +468,7 @@ Derivative of the GRM item probability matrix for person(s) with given ability e
 
 
 
-## [wasm_lder1_brm](../src/catirt.cpp#L1140)
+## [wasm_lder1_brm](../src/catirt.cpp#L1172)
 
 **Type:** `const` `Vector`
 
@@ -494,7 +495,7 @@ Derivative of log-likelihoods of reponses to items at given ability estimates
 
 
 
-## [wasm_lder1_grm](../src/catirt.cpp#L1155)
+## [wasm_lder1_grm](../src/catirt.cpp#L1187)
 
 **Type:** `const` `Vector`
 
@@ -521,11 +522,13 @@ Derivative of log-likelihoods of reponses to items at given ability estimates
 
 
 
-## [wasm_logLik_grm](../src/catirt.cpp#L1170)
+## [wasm_logLik_brm](../src/catirt.cpp#L1202)
 
 **Type:** `const` `Vector`
 
-Log-likelihoods of reponses to items at given ability estimates 
+BRM model log-likelihoods of reponses to items at given ability estimates 
+
+Port of: lokLik.brm.R 
 
 
 
@@ -534,21 +537,48 @@ Log-likelihoods of reponses to items at given ability estimates
 |Parameter Name|Description|
 |-----|-----|
 |u|Item responses (N people x M responses)|
-|theta|Ability estimates for N people (or T thetas if N people is 1)|
+|theta|Ability estimates for N people (or T thetas if N is 1)|
+|params|Parameters for M items (M x 3 matrix)|
+|type|LogLikType.MLE or LogLikType.BME (not yet supported) |
+
+
+**Returned Value:** log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1) 
+
+
+
+
+
+
+
+
+## [wasm_logLik_grm](../src/catirt.cpp#L1219)
+
+**Type:** `const` `Vector`
+
+GRM model log-likelihoods of reponses to items at given ability estimates 
+
+
+
+
+
+|Parameter Name|Description|
+|-----|-----|
+|u|Item responses (N people x M responses)|
+|theta|Ability estimates for N people (or T thetas if N is 1)|
 |params|Parameters for M items (M x K matrix) where K is number of categories|
-|type|LogLikType.MLE (LogLikType.BME not yet supported) |
+|type|LogLikType.MLE or LogLikType.BME (not yet supported) |
 
 
-**Returned Value:** log-likelihood for each person - vector (N x 1) 
-
-
-
+**Returned Value:** log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1) 
 
 
 
 
 
-## [wasm_sel_prm](../src/catirt.cpp#L1185)
+
+
+
+## [wasm_sel_prm](../src/catirt.cpp#L1234)
 
 **Type:** `const` `JSMatrix`
 
@@ -574,7 +604,7 @@ Select item/category likelihoods
 
 
 
-## [wasm_lder2_brm](../src/catirt.cpp#L1199)
+## [wasm_lder2_brm](../src/catirt.cpp#L1248)
 
 **Type:** `const` `JSMatrix`
 
@@ -600,7 +630,7 @@ Select item/category likelihoods
 
 
 
-## [wasm_lder2_grm](../src/catirt.cpp#L1213)
+## [wasm_lder2_grm](../src/catirt.cpp#L1262)
 
 **Type:** `const` `JSMatrix`
 
@@ -626,7 +656,7 @@ Select item/category likelihoods
 
 
 
-## [wasm_FI_brm](../src/catirt.cpp#L1254)
+## [wasm_FI_brm](../src/catirt.cpp#L1303)
 
 **Type:** `JSFI_Result`
 
@@ -653,7 +683,7 @@ Fisher Information of BRM items for given ability estimates and optional respons
 
 
 
-## [wasm_FI_brm_modified_expected](../src/catirt.cpp#L1269)
+## [wasm_FI_brm_modified_expected](../src/catirt.cpp#L1318)
 
 **Type:** `JSFI_Result`
 
@@ -680,7 +710,7 @@ Expected Fisher Information (modified unweighted) of BRM items for given phase 1
 
 
 
-## [wasm_FI_grm](../src/catirt.cpp#L1284)
+## [wasm_FI_grm](../src/catirt.cpp#L1333)
 
 **Type:** `JSFI_Result`
 
@@ -707,7 +737,7 @@ Fisher Information of GRM items for given ability estimates and optional respons
 
 
 
-## [wasm_uniroot_lder1](../src/catirt.cpp#L1299)
+## [wasm_uniroot_lder1](../src/catirt.cpp#L1348)
 
 **Type:** `Uniroot_Result`
 
@@ -735,7 +765,7 @@ Search the range interval for a root of the specificed BRM or GRM lder1 function
 
 
 
-## [wasm_wleEst](../src/catirt.cpp#L1340)
+## [wasm_wleEst](../src/catirt.cpp#L1389)
 
 **Type:** `JSEst_Result`
 
