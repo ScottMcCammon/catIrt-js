@@ -3,7 +3,7 @@
   "description": "CatIrt-js is a JavaScript / WebAssembly port of the [catIrt](https://github.com/swnydick/catIrt) R package",
   "homepage": "https://github.com/ScottMcCammon/catIrt-js",
   "main": "./dist/catirt.js",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "files": [
     "README.md",
     "LICENSE",

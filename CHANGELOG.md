@@ -1,5 +1,9 @@
 # catIrt-js ChangeLog
 
+## 2022-04-06: Version 2.3.0
+
+ - BREAKING CHANGE: update termGLR_one to return object with category and likelihood ratio
+
 ## 2021-01-24: Version 2.2.0
 
  - port logLik.R to wasm_logLik_brm
