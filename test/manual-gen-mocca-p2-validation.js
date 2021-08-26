@@ -371,7 +371,7 @@ class Pilot1 extends BaseCAT {
           category = ctg.error;
         }
         else if (ctg !== null) {
-          category = ctg;
+          category = ctg.category;
         }
       }
       this._category = category;

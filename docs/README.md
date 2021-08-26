@@ -209,7 +209,7 @@ beta: 0.05 // controls upper and lower likelihood threshold
 |options|Options object (see description above) |
 
 
-**Returned Value:** options.category value OR NULL if unable to classify 
+**Returned Value:** \{category, likratio\}, \{error\} OR NULL if unable to classify 
 
 
 
@@ -218,7 +218,7 @@ beta: 0.05 // controls upper and lower likelihood threshold
 
 
 
-## [itChoose](../src/additions.js#L544)
+## [itChoose](../src/additions.js#L547)
 
 Choose optimal item(s) for test administration 
 
@@ -250,7 +250,7 @@ cat_theta: null // estimated ability of respondant
 
 
 
-## [getAnswers](../src/additions.js#L749)
+## [getAnswers](../src/additions.js#L752)
 
 Extract answers (i.e. finite values) from an array of responses 
 
@@ -272,7 +272,7 @@ Extract answers (i.e. finite values) from an array of responses
 
 
 
-## [getAnsweredItems](../src/additions.js#L763)
+## [getAnsweredItems](../src/additions.js#L766)
 
 Filter array of items for those that have been answered 
 
@@ -295,7 +295,7 @@ Filter array of items for those that have been answered
 
 
 
-## [getUnansweredItems](../src/additions.js#L778)
+## [getUnansweredItems](../src/additions.js#L781)
 
 Filter array of items for those that have not been answered 
 

@@ -354,7 +354,7 @@ Module.FI_grm_expected_one = function(params, theta) {
  * @param model   'brm' or 'grm'
  * @param options Options object (see description above)
  *
- * @return options.category value OR NULL if unable to classify
+ * @return \{category, likratio\}, \{error\} OR NULL if unable to classify
  */
 Module.termGLR_one = function(params, resp, model, options={}) {
   const defaults = {
@@ -501,7 +501,10 @@ Module.termGLR_one = function(params, resp, model, options={}) {
   // test each category
   for (let k = 0; k < options.bounds.length + 1; k++) {
     if ((likRat[k] >= c_upper) && (likRat[k+1] <= c_lower)) {
-      return options.categories[k];
+      return {
+        category: options.categories[k],
+        likratio: likRat[k]
+      };
     }
   }
 
