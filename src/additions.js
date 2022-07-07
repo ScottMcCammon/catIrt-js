@@ -454,7 +454,10 @@ Module.termGLR_one = function(params, resp, model, options={}) {
   params = params.filter((_, idx) => sel[idx]);
 
   if (resp.length === 0) {
-    return null;
+    return {
+      category: null,
+      likratio: NaN
+    };
   }
 
   const c_lower = Math.log( options.beta / (1 - options.alpha) );
@@ -503,12 +506,15 @@ Module.termGLR_one = function(params, resp, model, options={}) {
     if ((likRat[k] >= c_upper) && (likRat[k+1] <= c_lower)) {
       return {
         category: options.categories[k],
-        likratio: likRat[k]
+        likratio: (model === 'brm' ? likRat[1] : NaN)
       };
     }
   }
 
-  return null;
+  return {
+    category: null,
+    likratio: (model === 'brm' ? likRat[1] : NaN)
+  };
 };
 
 // add deep copy to objects and arrays

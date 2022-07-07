@@ -218,7 +218,7 @@ beta: 0.05 // controls upper and lower likelihood threshold
 
 
 
-## [itChoose](../src/additions.js#L547)
+## [itChoose](../src/additions.js#L553)
 
 Choose optimal item(s) for test administration 
 
@@ -250,7 +250,7 @@ cat_theta: null // estimated ability of respondant
 
 
 
-## [getAnswers](../src/additions.js#L752)
+## [getAnswers](../src/additions.js#L758)
 
 Extract answers (i.e. finite values) from an array of responses 
 
@@ -272,7 +272,7 @@ Extract answers (i.e. finite values) from an array of responses
 
 
 
-## [getAnsweredItems](../src/additions.js#L766)
+## [getAnsweredItems](../src/additions.js#L772)
 
 Filter array of items for those that have been answered 
 
@@ -295,7 +295,7 @@ Filter array of items for those that have been answered
 
 
 
-## [getUnansweredItems](../src/additions.js#L781)
+## [getUnansweredItems](../src/additions.js#L787)
 
 Filter array of items for those that have not been answered 
 

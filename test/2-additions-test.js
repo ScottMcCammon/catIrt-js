@@ -15,7 +15,10 @@ describe('catIrt JS additions', function () {
   const theta = [-1.3, 1.3];
   const uresp = [
       [1, 1, 1, 0, 0],
-      [0, 0, 1, 0, 1]
+      [0, 0, 1, 0, 1],
+      [0, 0, 0, 0, 0],          // all category 0
+      [1, 1, 1, 1, 1],          // all category 1
+      [NaN, NaN, NaN, NaN, NaN] // all correct
   ];
   const uresp_grm = [
       [1, 2, 1, 3, 1],
@@ -360,26 +363,44 @@ describe('catIrt JS additions', function () {
 
   describe('termGLR_one:', function () {
     it('termGLR_one(params, uresp[0], "grm", options)', function () {
-      const expected = { category: 1, likratio: 2.64377 };
+      const expected = { category: 1, likratio: NaN };
       const res = catirtlib.termGLR_one(itemparams, uresp_grm[0], 'grm', {categories:[0,1,2], delta:0.5, alpha:0.1, beta:0.1});
       assert.strictEqual(format(res), format(expected));
     });
 
     it('termGLR_one(params, uresp[1], "grm", options)', function () {
-      const expected = null;
+      const expected = { category: null, likratio: NaN };
       const res = catirtlib.termGLR_one(itemparams, uresp_grm[1], 'grm', {categories:[0,1,2], delta:0.5, alpha:0.1, beta:0.1});
       assert.strictEqual(format(res), format(expected));
     });
 
     it('termGLR_one(params, uresp[0], "brm", options)', function () {
-      const expected = null;
+      const expected = { category: null, likratio: 0.372872 };
       const res = catirtlib.termGLR_one(itemparams, uresp[0], 'brm', {categories:[0,1], bounds:[0], delta:0.5, alpha:0.1, beta:0.1});
       assert.strictEqual(format(res), format(expected));
     });
 
     it('termGLR_one(params, uresp[1], "brm", options)', function () {
-      const expected = { category: 0, likratio: 2.19723 };
+      const expected = { category: 0, likratio: -3.97605 };
       const res = catirtlib.termGLR_one(itemparams, uresp[1], 'brm', {categories:[0,1], bounds:[0], delta:0.5, alpha:0.1, beta:0.1});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('termGLR_one(params, uresp[2], "brm", options)', function () {
+      const expected = { category: 0, likratio: -9.24777 };
+      const res = catirtlib.termGLR_one(itemparams, uresp[2], 'brm', {categories:[0,1], bounds:[0], delta:0.5, alpha:0.1, beta:0.1});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('termGLR_one(params, uresp[3], "brm", options)', function () {
+      const expected = { category: 1, likratio: 4.58967 };
+      const res = catirtlib.termGLR_one(itemparams, uresp[3], 'brm', {categories:[0,1], bounds:[0], delta:0.5, alpha:0.1, beta:0.1});
+      assert.strictEqual(format(res), format(expected));
+    });
+
+    it('termGLR_one(params, uresp[4], "brm", options)', function () {
+      const expected = { category: null, likratio: NaN };
+      const res = catirtlib.termGLR_one(itemparams, uresp[4], 'brm', {categories:[0,1], bounds:[0], delta:0.5, alpha:0.1, beta:0.1});
       assert.strictEqual(format(res), format(expected));
     });
   });
