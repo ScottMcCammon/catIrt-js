@@ -56,9 +56,9 @@ catirt_load().then(function(catirt) {
 ```
 
 ## Development
-1. Requires [nodeJS 10 or greater](https://nodejs.org/) - v14 recommended
-2. Requires [emscripten 2.0.6 or greater](https://emscripten.org/docs/getting_started/downloads.html)
-3. Requires [Eigen 3.3.8 or greater](https://gitlab.com/libeigen/eigen/-/releases) - download and extract to `eigen/`
+1. Requires [nodeJS 24 or greater](https://nodejs.org/)
+2. Requires [emscripten 6.0.0 or greater](https://emscripten.org/docs/getting_started/downloads.html)
+3. Requires [Eigen 3.4.1 or greater](https://gitlab.com/libeigen/eigen/-/releases) - download and extract to `eigen/`
 4. Requires nodejs packages for testing: `npm install`
 
 ## Building
