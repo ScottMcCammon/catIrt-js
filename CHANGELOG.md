@@ -1,5 +1,9 @@
 # catIrt-js ChangeLog
 
+## 2026-06-09: Version 3.0.0
+
+ - Update dev dependencies: emscripten -> v6.0.0, Eigen -> v3.4.1, node -> v24+, mocha -> v11+
+
 ## 2022-07-07: Version 2.3.1
 
  - BUG FIX: fix termGLR_one (BRM model) to return correct likelihood ratio even when a category is not determined. Until the logic is better understood, this is unsupported using the GRM model (NaN always returned for likelihood).
