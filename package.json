@@ -13,7 +13,7 @@
     "docs/README.md"
   ],
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "build": "emcc -O3 --bind -I ./eigen ./src/catirt.cpp --pre-js ./src/additions.js -o ./dist/catirt.js -s WASM=1 -s MODULARIZE -s EXPORT_NAME='catirt_load'",
