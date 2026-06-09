@@ -1,5 +1,9 @@
 # catIrt-js ChangeLog
 
+## 2026-06-09: Version 3.0.1
+
+ - Relax minimum node version to v18 for non-development usage
+
 ## 2026-06-09: Version 3.0.0
 
  - Update dev dependencies: emscripten -> v6.0.0, Eigen -> v3.4.1, node -> v24+, mocha -> v11+
