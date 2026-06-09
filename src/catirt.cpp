@@ -24,9 +24,12 @@ enum class ModelType {
 };
 
 using namespace emscripten;
-using namespace Eigen;
 
 using Vector = std::vector<double>;
+using ArrayXd = Eigen::ArrayXd;
+using ArrayXXd = Eigen::ArrayXXd;
+using ArrayX3d = Eigen::ArrayX3d;
+using RowVector2d = Eigen::RowVector2d;
 
 /**MDJAVADOC_SKIP
  * Generate the BRM item probability matrix for person(s) with given ability estimates
@@ -38,7 +41,7 @@ using Vector = std::vector<double>;
  *
  * @return person/item probability matrix (N x M) for N people and M items
  */
-const ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd p_brm(const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -76,7 +79,7 @@ const ArrayXXd p_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>&
  *
  * @return person/item probability matrix ((N*K) x M) for N people, K categories, and M items
  */
-const ArrayXXd p_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params)
+const ArrayXXd p_grm(const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayXXd>& params)
 {
   int n_ppl, n_it, n_cat;   // for person, item, and category counts
   int i, j, k;              // for the loop iteration
@@ -121,7 +124,7 @@ const ArrayXXd p_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>&
  *
  * @return person/item derivative probability matrix (N x M) for N people and M items
  */
-const ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd pder1_brm(const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -161,7 +164,7 @@ const ArrayXXd pder1_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
  *
  * @return person/item derivative probability matrix ((N*K) x M) for N people, K categories, and M items
  */
-const ArrayXXd pder1_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params)
+const ArrayXXd pder1_grm(const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayXXd>& params)
 {
   int n_ppl, n_it, n_cat;   // for person, item, and category counts
   int i, j, k;              // for the loop iteration
@@ -207,7 +210,7 @@ const ArrayXXd pder1_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
  *
  * @return person/item 2nd derivative probability matrix (N x M) for N people and M items
  */
-const ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params)
+const ArrayXXd pder2_brm(const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayX3d>& params)
 {
   int n_ppl, n_it;   // for person and item counts
   int i, j;          // for the loop iteration
@@ -249,7 +252,7 @@ const ArrayXXd pder2_brm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
  *
  * @return person/item 2nd derivative probability matrix ((N*K) x M) for N people, K categories, and M items
  */
-const ArrayXXd pder2_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params)
+const ArrayXXd pder2_grm(const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayXXd>& params)
 {
   int n_ppl, n_it, n_cat;   // for person, item, and category counts
   int i, j, k;              // for the loop iteration
@@ -298,7 +301,7 @@ const ArrayXXd pder2_grm(const Ref<const ArrayXd>& theta, const Ref<const ArrayX
  *
  * @return derivative of log-likelihood for each person - vector (N x 1)
  */
-const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LderType ltype )
+const ArrayXd lder1_brm( const Eigen::Ref<const ArrayXXd>& u, const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayXXd>& params, LderType ltype )
 {
   // u is the response, theta is ability, and params are the parameters.
   int N = theta.rows();
@@ -344,7 +347,7 @@ const ArrayXd lder1_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>&
  *
  * @return (T x J) matrix - item likelihoods where T = {N, for N>1; M, for N=1}
  */
-const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>& u, int K ) {
+const ArrayXXd sel_prm( const Eigen::Ref<const ArrayXXd>& p, const Eigen::Ref<const ArrayXXd>& u, int K ) {
   int N = u.rows();
   int J = p.cols();
   int M, T;
@@ -397,7 +400,7 @@ const ArrayXXd sel_prm( const Ref<const ArrayXXd>& p, const Ref<const ArrayXXd>&
  *
  * @return log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1)
  */
-const ArrayXd logLik_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params, LogLikType type=LogLikType::MLE )
+const ArrayXd logLik_brm( const Eigen::Ref<const ArrayXXd>& u, const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayX3d>& params, LogLikType type=LogLikType::MLE )
 {
   ArrayXXd p = p_brm(theta, params);
   ArrayXXd logLik;
@@ -429,7 +432,7 @@ const ArrayXd logLik_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>
  *
  * @return log-likelihood for each person - vector (N x 1), or for each theta - vector (T x 1)
  */
-const ArrayXd logLik_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LogLikType type=LogLikType::MLE )
+const ArrayXd logLik_grm( const Eigen::Ref<const ArrayXXd>& u, const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayXXd>& params, LogLikType type=LogLikType::MLE )
 {
   ArrayXXd p = p_grm(theta, params);
   ArrayXXd logLik;
@@ -456,7 +459,7 @@ const ArrayXd logLik_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>
  *
  * @return derivative of log-likelihood for each person/category - vector (N x 1)
  */
-const ArrayXd lder1_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params, LderType ltype )
+const ArrayXd lder1_grm( const Eigen::Ref<const ArrayXXd>& u, const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayXXd>& params, LderType ltype )
 {
   // u is the response, theta is ability, and params are the parameters.
   int N = theta.rows();
@@ -504,7 +507,7 @@ const ArrayXd lder1_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>&
  *
  * @return 2nd derivative of log-likelihood for each person - vector (N x M)
  */
-const ArrayXXd lder2_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayX3d>& params )
+const ArrayXXd lder2_brm( const Eigen::Ref<const ArrayXXd>& u, const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayX3d>& params )
 {
   // Calculating the probability of response:
   ArrayXXd p = p_brm(theta, params);
@@ -532,7 +535,7 @@ const ArrayXXd lder2_brm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>
  *
  * @return 2nd derivative of log-likelihood for each person - vector (N x M)
  */
-const ArrayXXd lder2_grm( const Ref<const ArrayXXd>& u, const Ref<const ArrayXd>& theta, const Ref<const ArrayXXd>& params )
+const ArrayXXd lder2_grm( const Eigen::Ref<const ArrayXXd>& u, const Eigen::Ref<const ArrayXd>& theta, const Eigen::Ref<const ArrayXXd>& params )
 {
   int K = params.cols();
 
@@ -585,7 +588,7 @@ struct FI_Result
  *
  * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
  */
-const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const ArrayXd>& theta, FIType type, const Ref<const ArrayXXd>& resp )
+const FI_Result FI_brm( const Eigen::Ref<const ArrayX3d>& params, const Eigen::Ref<const ArrayXd>& theta, FIType type, const Eigen::Ref<const ArrayXXd>& resp )
 {
   // check supported types
   if ( type != FIType::OBSERVED && type != FIType::EXPECTED ) {
@@ -639,7 +642,7 @@ const FI_Result FI_brm( const Ref<const ArrayX3d>& params, const Ref<const Array
  *
  * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
  */
-const FI_Result FI_brm_modified_expected( const Ref<const ArrayX3d>& p2_params, const Ref<const ArrayXd>& p2_theta, const Ref<const ArrayX3d>& p1_params, const Ref<const ArrayXd>& p1_theta )
+const FI_Result FI_brm_modified_expected( const Eigen::Ref<const ArrayX3d>& p2_params, const Eigen::Ref<const ArrayXd>& p2_theta, const Eigen::Ref<const ArrayX3d>& p1_params, const Eigen::Ref<const ArrayXd>& p1_theta )
 {
   // Make sure that item parameters have matching dimensions
   if ( (p1_params.rows() != p2_params.rows()) || (p1_params.cols() != p2_params.cols()) ) {
@@ -685,7 +688,7 @@ const FI_Result FI_brm_modified_expected( const Ref<const ArrayX3d>& p2_params, 
  *
  * @return FI_Result with item (NxM), test (Nx1), sem (Nx1), and type info
  */
-const FI_Result FI_grm( const Ref<const ArrayXXd>& params, const Ref<const ArrayXd>& theta, FIType type, const Ref<const ArrayXXd>& resp )
+const FI_Result FI_grm( const Eigen::Ref<const ArrayXXd>& params, const Eigen::Ref<const ArrayXd>& theta, FIType type, const Eigen::Ref<const ArrayXXd>& resp )
 {
   // check supported types
   if ( type != FIType::OBSERVED && type != FIType::EXPECTED ) {
@@ -762,10 +765,10 @@ struct Uniroot_Result
  * @return Uniroot_Result with iter=-1 if a root did not converge within max iterations
  */
 Uniroot_Result uniroot_lder1(
-    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayXXd>&, LderType),
-    const Ref<const RowVector2d>& range,
-    const Ref<const ArrayXXd>& resp,
-    const Ref<const ArrayXXd>& params,
+    const ArrayXd (*lderFP)(const Eigen::Ref<const ArrayXXd>&, const Eigen::Ref<const ArrayXd>&, const Eigen::Ref<const ArrayXXd>&, LderType),
+    const Eigen::Ref<const RowVector2d>& range,
+    const Eigen::Ref<const ArrayXXd>& resp,
+    const Eigen::Ref<const ArrayXXd>& params,
     LderType type,
     int maxit = 1000,
     double tol = 0.0
@@ -775,8 +778,8 @@ Uniroot_Result uniroot_lder1(
     double upper = range(1); // bx
     double a, b, c;          // Abscissae, descr. see above
     double fa, fb, fc;       // f(a), f(b), f(c)
-    Array<double, 1, 1> tmpTheta;
-    Array<double, 1, 1> lderResult;
+    Eigen::Array<double, 1, 1> tmpTheta;
+    Eigen::Array<double, 1, 1> lderResult;
     Uniroot_Result result{0};
 
     // NOTE: removed code to extend interval if lower * upper > 0
@@ -939,7 +942,7 @@ struct Est_Result
  *
  * @return Est_Result with theta (Nx1), info (Nx1), and sem (Nx1) info
  */
-const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayXXd>& params, const Ref<const RowVector2d>& range, ModelType type )
+const Est_Result wleEst( const Eigen::Ref<const ArrayXXd>& resp, const Eigen::Ref<const ArrayXXd>& params, const Eigen::Ref<const RowVector2d>& range, ModelType type )
 {
   //
   // Check arguments
@@ -970,7 +973,7 @@ const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayX
   Uniroot_Result ur_result;
   FI_Result fi_result;
   Est_Result result;
-  const ArrayXd(*lderFunc)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayXXd>&, LderType);
+  const ArrayXd(*lderFunc)(const Eigen::Ref<const ArrayXXd>&, const Eigen::Ref<const ArrayXd>&, const Eigen::Ref<const ArrayXXd>&, LderType);
 
   if (type == ModelType::GRM) {
       lderFunc = &lder1_grm;
@@ -1006,7 +1009,7 @@ const Est_Result wleEst( const Ref<const ArrayXXd>& resp, const Ref<const ArrayX
  *
  *******************************************/
 
-const Vector VectorFromMatrix( const Ref<const ArrayXXd>& m )
+const Vector VectorFromMatrix( const Eigen::Ref<const ArrayXXd>& m )
 {
     assert((m.rows() <= 1 || m.cols() <= 1) && "Matrix must be 0 or 1 dimensional");
     Vector res;
@@ -1020,7 +1023,7 @@ const Vector VectorFromMatrix( const Ref<const ArrayXXd>& m )
 
 // wrapper class for Eigen::Array to JS binding
 class JSMatrix {
-    using Mat = Array<double, Dynamic, Dynamic>;
+    using Mat = Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic>;
     using Vector = std::vector<double>;
     using Vector2d = std::vector<std::vector<double>>;
 
@@ -1357,7 +1360,7 @@ JSFI_Result wasm_FI_grm(const JSMatrix *params, const JSMatrix *theta, FIType ty
  */
 Uniroot_Result wasm_uniroot_lder1(const JSMatrix *range, const JSMatrix *resp, const JSMatrix *params, LderType type, ModelType model)
 {
-    const ArrayXd (*lderFP)(const Ref<const ArrayXXd>&, const Ref<const ArrayXd>&, const Ref<const ArrayXXd>&, LderType);
+    const ArrayXd (*lderFP)(const Eigen::Ref<const ArrayXXd>&, const Eigen::Ref<const ArrayXd>&, const Eigen::Ref<const ArrayXXd>&, LderType);
 
     if (model == ModelType::BRM) {
         lderFP = &lder1_brm;
